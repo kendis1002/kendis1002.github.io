@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Image from './Image'
+import Image from '@/components/Image'
 import { CoreContent } from 'pliny/utils/contentlayer'
 import { Blog } from 'contentlayer/generated'
 import { formatDate } from 'pliny/utils/formatDate'
