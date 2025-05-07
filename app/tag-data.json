@@ -1,6 +1,4 @@
 {
-  "next-js": 1,
-  "tailwind": 1,
-  "guide": 1,
-  "feature": 1
+  "android": 1,
+  "coroutine": 1
 }
