@@ -15,21 +15,17 @@ type BlogCardProps = {
 export default function BlogCard({ post }: BlogCardProps) {
   const { slug, title, summary, date, tags } = post
   const formattedDate = formatDate(date)
-  const [imageError, setImageError] = useState(false)
 
   return (
     <div className="shadow-feature-card group rounded-xl px-4 py-4">
       <Link href={`/blog/${slug}`} className="block">
         <div className="relative h-48 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-          {!imageError && (
-            <Image
-              src={`/static/images/blog/${slug}/cover.png`}
-              alt={title}
-              fill
-              className="object-cover transition-transform group-hover:scale-105"
-              onError={() => setImageError(true)}
-            />
-          )}
+          <Image
+            src={`/static/images/blog/${slug}/cover.png`}
+            alt={title}
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
+          />
         </div>
         <div className="flex items-center justify-between gap-2 px-2 pt-4 text-sm text-gray-500 dark:text-gray-400">
           {formattedDate}
