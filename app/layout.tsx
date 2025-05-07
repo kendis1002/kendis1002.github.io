@@ -2,7 +2,7 @@ import 'css/tailwind.css'
 import 'pliny/search/algolia.css'
 import 'remark-github-blockquote-alert/alert.css'
 
-import { Space_Grotesk } from 'next/font/google'
+import { GeistSans } from 'geist/font'
 import { Analytics, AnalyticsConfig } from 'pliny/analytics'
 import { SearchProvider, SearchConfig } from 'pliny/search'
 import Header from '@/components/Header'
@@ -11,12 +11,9 @@ import Footer from '@/components/Footer'
 import siteMetadata from '@/data/siteMetadata'
 import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
+import Image from '@/components/Image'
 
-const space_grotesk = Space_Grotesk({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-space-grotesk',
-})
+const geistSans = GeistSans
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteMetadata.siteUrl),
@@ -64,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang={siteMetadata.language}
-      className={`${space_grotesk.variable} scroll-smooth`}
+      className={`${geistSans.variable} scroll-smooth`}
       suppressHydrationWarning
     >
       <link
@@ -94,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
-      <body className="bg-white pl-[calc(100vw-100%)] text-black antialiased dark:bg-gray-950 dark:text-white">
+      <body className="bg-background pl-[calc(100vw-100%)] text-black antialiased dark:bg-background-dark dark:text-white">
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
           <SectionContainer>
@@ -103,6 +100,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <main className="mb-auto">{children}</main>
             </SearchProvider>
             <Footer />
+            <Image
+              width={1512}
+              height={550}
+              className='absolute left-1/2 top-0 -z-10 -translate-x-1/2'
+              src='/static/images/gradient-background-top.png'
+              alt=''
+              role='presentation'
+              priority
+            />
+            <Image
+              width={1512}
+              height={447}
+              className='absolute left-1/2 -z-10 -translate-x-1/2 -translate-y-[100%]'
+              src='/static/images/gradient-background-bottom.png'
+              alt=''
+              role='presentation'
+              priority
+            />
           </SectionContainer>
         </ThemeProviders>
       </body>

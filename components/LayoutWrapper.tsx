@@ -1,25 +1,44 @@
-import { Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font'
 import SectionContainer from './SectionContainer'
 import Footer from './Footer'
 import { ReactNode } from 'react'
 import Header from './Header'
+import Image from './Image'
 
 interface Props {
   children: ReactNode
 }
 
-const inter = Inter({
-  subsets: ['latin'],
-})
+const geistSans = GeistSans
 
 const LayoutWrapper = ({ children }: Props) => {
   return (
     <SectionContainer>
-      <div className={`${inter.className} flex h-screen flex-col justify-between font-sans`}>
+      <div className={`${geistSans.className} flex h-screen flex-col justify-between font-sans`}>
         <Header />
         <main className="mb-auto">{children}</main>
         <Footer />
+
+       
       </div>
+       {/* <Image
+          width={1512}
+          height={550}
+          className='absolute left-1/2 top-0 -z-10 -translate-x-1/2'
+          src='/static/images/gradient-background-top.png'
+          alt=''
+          role='presentation'
+          priority
+        />
+        <Image
+          width={1512}
+          height={447}
+          className='absolute -bottom-6 left-1/2 -z-10 -translate-x-1/2'
+          src='/static/images/gradient-background-bottom.png'
+          alt=''
+          role='presentation'
+          priority
+        /> */}
     </SectionContainer>
   )
 }
