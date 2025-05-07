@@ -40,7 +40,7 @@ export default function BlogCard({ post }: BlogCardProps) {
           </div>
         </div>
         <div className="flex flex-col px-2 py-4">
-          <h3 className="text-2xl font-semibold group-hover:text-primary-500">{title}</h3>
+          <h3 className="group-hover:text-primary-500 text-2xl font-semibold">{title}</h3>
           <p className="mt-2 text-gray-600 dark:text-gray-400">{summary}</p>
         </div>
       </Link>

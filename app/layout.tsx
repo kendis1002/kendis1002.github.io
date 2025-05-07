@@ -91,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff" />
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
-      <body className="bg-background pl-[calc(100vw-100%)] text-black antialiased dark:bg-background-dark dark:text-white">
+      <body className="dark:bg-background-dark pl-[calc(100vw-100%)] text-black antialiased dark:text-white">
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
           <SectionContainer>
@@ -103,19 +103,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Image
               width={1512}
               height={550}
-              className='absolute left-1/2 top-0 -z-10 -translate-x-1/2'
-              src='/static/images/gradient-background-top.png'
-              alt=''
-              role='presentation'
+              className="absolute top-0 left-1/2 -z-10 -translate-x-1/2"
+              src="/static/images/gradient-background-top.png"
+              alt=""
+              role="presentation"
               priority
             />
             <Image
               width={1512}
               height={447}
-              className='absolute left-1/2 -z-10 -translate-x-1/2 -translate-y-[100%]'
-              src='/static/images/gradient-background-bottom.png'
-              alt=''
-              role='presentation'
+              className="absolute left-1/2 -z-10 -translate-x-1/2 -translate-y-[100%]"
+              src="/static/images/gradient-background-bottom.png"
+              alt=""
+              role="presentation"
               priority
             />
           </SectionContainer>

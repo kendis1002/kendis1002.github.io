@@ -12,7 +12,8 @@ import { cn } from '../lib/utils'
 
 const Header = () => {
   const pathname = usePathname()
-  let headerClass = 'bg-background/30 dark:bg-background-dark/30 shadow-xs fixed inset-x-0 top-4 z-40 mx-auto flex h-[60px] max-w-5xl items-center justify-between rounded-2xl px-8 saturate-100 backdrop-blur-[10px] transition-colors'
+  let headerClass =
+    'bg-background/30 dark:bg-background-dark/30 shadow-xs fixed inset-x-0 top-4 z-40 mx-auto flex h-[60px] max-w-5xl items-center justify-between rounded-2xl px-8 saturate-100 backdrop-blur-[10px] transition-colors'
   if (siteMetadata.stickyNav) {
     headerClass += ' sticky top-0 z-50'
   }
@@ -33,15 +34,17 @@ const Header = () => {
             .map((link) => {
               const isActive = link.href === pathname
               return (
-                <div key={link.title} className="relative flex h-[60px] items-center justify-center">
+                <div
+                  key={link.title}
+                  className="relative flex h-[60px] items-center justify-center"
+                >
                   <Link
                     href={link.href}
                     className={cn(
                       'rounded-sm px-3 py-2 text-sm font-medium transition-colors',
-                      {
-                        'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100': !isActive,
-                        'text-gray-900 dark:text-gray-100': isActive
-                      }
+                      isActive
+                        ? 'text-gray-900 dark:text-gray-100'
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
                     )}
                   >
                     {link.title}
