@@ -1,30 +1,30 @@
 ---
-title: Introducing Multi-part Posts with Nested Routing
+title: 'Giới thiệu Bài viết Nhiều phần với Định tuyến Lồng nhau'
 date: '2021-05-02'
 tags: ['multi-author', 'next-js', 'feature']
 draft: false
-summary: 'The blog template supports posts in nested sub-folders. This can be used to group posts of similar content e.g. a multi-part course. This post is itself an example of a nested route!'
+summary: 'Mẫu blog hỗ trợ các bài viết trong các thư mục con lồng nhau. Điều này có thể được sử dụng để nhóm các bài viết có nội dung tương tự, ví dụ: một khóa học nhiều phần. Bài viết này chính là một ví dụ về định tuyến lồng nhau!'
 ---
 
-# Nested Routes
+# Định tuyến Lồng nhau
 
-The blog template supports posts in nested sub-folders. This helps in organisation and can be used to group posts of similar content e.g. a multi-part series. This post is itself an example of a nested route! It's located in the `/data/blog/nested-route` folder.
+Mẫu blog hỗ trợ các bài viết trong các thư mục con lồng nhau. Điều này giúp tổ chức và có thể được sử dụng để nhóm các bài viết có nội dung tương tự, ví dụ: một loạt bài nhiều phần. Bài viết này chính là một ví dụ về định tuyến lồng nhau! Nó nằm trong thư mục `/data/blog/nested-route`.
 
-## How
+## Cách thực hiện
 
-Simplify create multiple folders inside the main `/data/blog` folder and add your `.md`/`.mdx` files to them. You can even create something like `/data/blog/nested-route/deeply-nested-route/my-post.md`
+Đơn giản chỉ cần tạo nhiều thư mục bên trong thư mục chính `/data/blog` và thêm các tệp `.md`/`.mdx` của bạn vào đó. Bạn thậm chí có thể tạo một cái gì đó như `/data/blog/nested-route/deeply-nested-route/my-post.md`
 
-We use Next.js catch all routes to handle the routing and path creations.
+Chúng tôi sử dụng các tuyến đường bắt tất cả của Next.js để xử lý định tuyến và tạo đường dẫn.
 
-## Use Cases
+## Trường hợp sử dụng
 
-Here are some reasons to use nested routes
+Dưới đây là một số lý do để sử dụng định tuyến lồng nhau
 
-- More logical content organisation (blogs will still be displayed based on the created date)
-- Multi-part posts
-- Different sub-routes for each author
-- Internationalization (though it would be recommended to use [Next.js built-in i8n routing](https://nextjs.org/docs/advanced-features/i18n-routing))
+- Tổ chức nội dung hợp lý hơn (các blog vẫn sẽ được hiển thị dựa trên ngày tạo)
+- Bài viết nhiều phần
+- Các tuyến đường phụ khác nhau cho mỗi tác giả
+- Quốc tế hóa (mặc dù nên sử dụng [định tuyến i8n tích hợp của Next.js](https://nextjs.org/docs/advanced-features/i18n-routing))
 
-## Note
+## Lưu ý
 
-- The previous/next post links at bottom of the template are currently sorted by date. One could explore modifying the template to refer the reader to the previous/next post in the series, rather than by date.
+- Các liên kết bài viết trước/sau ở cuối mẫu hiện đang được sắp xếp theo ngày. Người ta có thể khám phá việc sửa đổi mẫu để hướng người đọc đến bài viết trước/sau trong loạt bài, thay vì theo ngày.

@@ -1,4 +1,3 @@
-import { GeistSans } from 'geist/font'
 import SectionContainer from './SectionContainer'
 import Footer from './Footer'
 import { ReactNode } from 'react'
@@ -9,12 +8,10 @@ interface Props {
   children: ReactNode
 }
 
-const geistSans = GeistSans
-
 const LayoutWrapper = ({ children }: Props) => {
   return (
     <SectionContainer>
-      <div className={`${geistSans.className} flex h-screen flex-col justify-between font-sans`}>
+      <div className="flex h-screen flex-col justify-between font-sans">
         <Header />
         <main className="mb-auto">{children}</main>
         <Footer />

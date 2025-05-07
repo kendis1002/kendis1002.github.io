@@ -1,29 +1,29 @@
 ---
-title: 'New features in v1'
+title: 'Tính năng mới trong phiên bản v1'
 date: 2021-08-07T15:32:14Z
 lastmod: '2021-02-01'
 tags: ['next-js', 'tailwind', 'guide']
 draft: false
-summary: 'An overview of the new features released in v1 - code block copy, multiple authors, frontmatter layout and more'
+summary: 'Tổng quan về các tính năng mới được phát hành trong v1 - sao chép khối mã, nhiều tác giả, bố cục frontmatter và nhiều hơn nữa'
 layout: PostSimple
 bibliography: references-data.bib
 ---
 
-## Overview
+## Tổng quan
 
-A post on the new features introduced in v1.0. New features:
+Một bài viết về các tính năng mới được giới thiệu trong v1.0. Các tính năng mới:
 
 <TOCInline toc={props.toc} exclude="Overview" toHeading={2} />
 
-First load JS decreased from 43kB to 39kB despite all the new features added! [^1]
+Kích thước JS tải lần đầu giảm từ 43kB xuống 39kB mặc dù đã thêm tất cả các tính năng mới! [^1]
 
-[^1]: With the new changes in Nextjs 12, first load JS increase to 45kB.
+[^1]: Với những thay đổi mới trong Nextjs 12, kích thước JS tải lần đầu tăng lên 45kB.
 
-See [upgrade guide](#upgrade-guide) below if you are migrating from v0 version of the template.
+Xem [hướng dẫn nâng cấp](#upgrade-guide) bên dưới nếu bạn đang chuyển từ phiên bản v0 của mẫu.
 
-## Theme colors
+## Màu sắc chủ đề
 
-You can easily modify the theme color by changing the primary attribute in the tailwind config file:
+Bạn có thể dễ dàng sửa đổi màu chủ đề bằng cách thay đổi thuộc tính primary trong tệp cấu hình tailwind:
 
 ```js:tailwind.config.js
 theme: {
@@ -36,59 +36,59 @@ theme: {
 }
 ```
 
-The primary color attribute should be assigned an object with keys from 50, 100, 200 ... 900 and the corresponding color code values.
+Thuộc tính màu primary nên được gán một đối tượng với các khóa từ 50, 100, 200 ... 900 và các giá trị mã màu tương ứng.
 
-Tailwind includes great default color palettes that can be used for theming your own website. Check out [customizing colors documentation page](https://tailwindcss.com/docs/customizing-colors) for the full range of options.
+Tailwind bao gồm các bảng màu mặc định tuyệt vời có thể được sử dụng để tùy chỉnh trang web của bạn. Kiểm tra [trang tài liệu tùy chỉnh màu sắc](https://tailwindcss.com/docs/customizing-colors) để xem đầy đủ các tùy chọn.
 
-Migrating from v1? You can revert to the previous theme by setting `primary` to `colors.sky` (Tailwind 2.2.2 and above, otherwise `colors.lightBlue`) and changing gray to `colors.gray`.
+Đang chuyển từ v1? Bạn có thể quay lại chủ đề trước đó bằng cách đặt `primary` thành `colors.sky` (Tailwind 2.2.2 trở lên, nếu không thì `colors.lightBlue`) và thay đổi gray thành `colors.gray`.
 
-From v1.1.2+, you can also customize the style of your code blocks easily by modifying the `css/prism.css` stylesheet. Token classnames are compatible with prismjs
-so you can copy and adapt token styles from a prismjs stylesheet e.g. [prism themes](https://github.com/PrismJS/prism-themes).
+Từ v1.1.2 trở lên, bạn cũng có thể dễ dàng tùy chỉnh kiểu của các khối mã bằng cách sửa đổi bảng định kiểu `css/prism.css`. Tên lớp token tương thích với prismjs
+nên bạn có thể sao chép và điều chỉnh kiểu token từ bảng định kiểu prismjs, ví dụ: [chủ đề prism](https://github.com/PrismJS/prism-themes).
 
-## Xdm MDX compiler
+## Trình biên dịch MDX Xdm
 
-We switched the MDX bundler from [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote) to [mdx-bundler](https://github.com/kentcdodds/mdx-bundler).
-This uses [xdm](https://github.com/wooorm/xdm) under the hood, the latest micromark 3 and remark, rehype libraries.
+Chúng tôi đã chuyển bộ đóng gói MDX từ [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote) sang [mdx-bundler](https://github.com/kentcdodds/mdx-bundler).
+Điều này sử dụng [xdm](https://github.com/wooorm/xdm) bên dưới, micromark 3 mới nhất và các thư viện remark, rehype.
 
-**Warning:** If you were using custom remark or rehype libraries, please upgrade to micromark 3 compatible ones. If you are upgrading, please delete `node_modules` and `package-lock.json` to avoid having past dependencies related issues.
+**Cảnh báo:** Nếu bạn đang sử dụng các thư viện remark hoặc rehype tùy chỉnh, vui lòng nâng cấp lên các phiên bản tương thích với micromark 3. Nếu bạn đang nâng cấp, vui lòng xóa `node_modules` và `package-lock.json` để tránh các vấn đề liên quan đến phụ thuộc cũ.
 
-[xdm](https://github.com/wooorm/xdm) contains multiple improvements over [@mdx-js/mdx](https://github.com/mdx-js/mdx), the compiler used internally by next-mdx-remote, but there might be some breaking behaviour changes.
-Please check your markdown output to verify.
+[xdm](https://github.com/wooorm/xdm) chứa nhiều cải tiến so với [@mdx-js/mdx](https://github.com/mdx-js/mdx), trình biên dịch được sử dụng nội bộ bởi next-mdx-remote, nhưng có thể có một số thay đổi hành vi gây ra lỗi.
+Vui lòng kiểm tra đầu ra markdown của bạn để xác minh.
 
-Some new possibilities include loading components directly in the mdx file using the import syntax and including js code which could be compiled and bundled at the build step.
+Một số khả năng mới bao gồm tải các thành phần trực tiếp trong tệp mdx bằng cú pháp import và bao gồm mã js có thể được biên dịch và đóng gói ở bước build.
 
-For example, the following jsx snippet can be used directly in an MDX file to render the page title component:
+Ví dụ, đoạn jsx sau có thể được sử dụng trực tiếp trong tệp MDX để hiển thị thành phần tiêu đề trang:
 
 ```jsx
-// Or import PageTitle from './components/PageTitle.js' if you are using js
+// Hoặc import PageTitle from './components/PageTitle.js' nếu bạn đang sử dụng js
 import PageTitle from './components/PageTitle.tsx'
-;<PageTitle> Using JSX components in MDX </PageTitle>
+;<PageTitle> Sử dụng các thành phần JSX trong MDX </PageTitle>
 ```
 
-The default configuration resolves all components relative to the `components` directory.
+Cấu hình mặc định giải quyết tất cả các thành phần tương đối với thư mục `components`.
 
-**Note**:
-Components which require external image loaders also require additional esbuild configuration.
-Components which are dependent on global application state on lifecycle like the Nextjs `Link` component would also not work with this setup as each mdx file is built independently.
-For such cases, it is better to use component substitution.
+**Lưu ý**:
+Các thành phần yêu cầu bộ tải hình ảnh bên ngoài cũng yêu cầu cấu hình esbuild bổ sung.
+Các thành phần phụ thuộc vào trạng thái ứng dụng toàn cục trong vòng đời như thành phần `Link` của Nextjs cũng sẽ không hoạt động với thiết lập này vì mỗi tệp mdx được xây dựng độc lập.
+Đối với các trường hợp như vậy, tốt hơn là sử dụng thay thế thành phần.
 
-## Table of contents component
+## Thành phần mục lục
 
-Inspired by [Docusaurus](https://docusaurus.io/docs/next/markdown-features/inline-toc) and Gatsby's [gatsby-remark-table-of-contents](https://www.gatsbyjs.com/plugins/gatsby-remark-table-of-contents/),
-the `toc` variable containing all the top level headings of the document is passed to the MDX file and can be styled accordingly.
-To make generating a table of contents (TOC) simple, you can use the existing `TOCInline` component.
+Lấy cảm hứng từ [Docusaurus](https://docusaurus.io/docs/next/markdown-features/inline-toc) và [gatsby-remark-table-of-contents](https://www.gatsbyjs.com/plugins/gatsby-remark-table-of-contents/) của Gatsby,
+biến `toc` chứa tất cả các tiêu đề cấp cao nhất của tài liệu được truyền vào tệp MDX và có thể được định kiểu tương ứng.
+Để tạo mục lục (TOC) đơn giản, bạn có thể sử dụng thành phần `TOCInline` hiện có.
 
-For example, the TOC in this post was generated with the following code:
+Ví dụ, TOC trong bài viết này được tạo bằng mã sau:
 
 ```jsx
 <TOCInline toc={props.toc} exclude="Overview" toHeading={2} />
 ```
 
-You can customise the headings that are displayed by configuring the `fromHeading` and `toHeading` props, or exclude particular headings
-by passing a string or a string array to the `exclude` prop. By default, all headings that are of depth 3 or smaller are indented. This can be configured by changing the `indentDepth` property.
-A `asDisclosure` prop can be used to render the TOC within an expandable disclosure element.
+Bạn có thể tùy chỉnh các tiêu đề được hiển thị bằng cách cấu hình các thuộc tính `fromHeading` và `toHeading`, hoặc loại trừ các tiêu đề cụ thể
+bằng cách truyền một chuỗi hoặc một mảng chuỗi vào thuộc tính `exclude`. Theo mặc định, tất cả các tiêu đề có độ sâu 3 hoặc nhỏ hơn được thụt lề. Điều này có thể được cấu hình bằng cách thay đổi thuộc tính `indentDepth`.
+Thuộc tính `asDisclosure` có thể được sử dụng để hiển thị TOC trong một phần tử disclosure có thể mở rộng.
 
-Here's the full TOC rendered in a disclosure element.
+Đây là TOC đầy đủ được hiển thị trong một phần tử disclosure.
 
 ```jsx
 <TOCInline toc={props.toc} asDisclosure />
@@ -96,20 +96,20 @@ Here's the full TOC rendered in a disclosure element.
 
 <TOCInline toc={props.toc} asDisclosure />
 
-## Layouts
+## Bố cục
 
-You can map mdx blog content to layout components by configuring the frontmatter field. For example, this post is written with the new `PostSimple` layout!
+Bạn có thể ánh xạ nội dung blog mdx vào các thành phần bố cục bằng cách cấu hình trường frontmatter. Ví dụ, bài viết này được viết với bố cục `PostSimple` mới!
 
-### Adding new templates
+### Thêm mẫu mới
 
-layout templates are stored in the `./layouts` folder. You can add your React components that you want to map to markdown content in this folder.
-The component file name must match that specified in the markdown frontmatter `layout` field.
+Các mẫu bố cục được lưu trữ trong thư mục `./layouts`. Bạn có thể thêm các thành phần React mà bạn muốn ánh xạ vào nội dung markdown trong thư mục này.
+Tên tệp thành phần phải khớp với tên được chỉ định trong trường `layout` của frontmatter markdown.
 
-The only required field is `children` which contains the rendered MDX content, though you would probably want to pass in the frontMatter contents and render it in the template.
+Trường bắt buộc duy nhất là `children` chứa nội dung MDX đã được hiển thị, mặc dù bạn có thể muốn truyền vào nội dung frontMatter và hiển thị nó trong mẫu.
 
-You can configure the template to take in other fields - see `PostLayout` component for an example.
+Bạn có thể cấu hình mẫu để nhận các trường khác - xem thành phần `PostLayout` để biết ví dụ.
 
-Here's an example layout which you can further customise:
+Đây là một ví dụ về bố cục mà bạn có thể tùy chỉnh thêm:
 
 ```jsx
 export default function ExampleLayout({ frontMatter, children }) {
@@ -125,27 +125,27 @@ export default function ExampleLayout({ frontMatter, children }) {
 }
 ```
 
-### Configuring a blog post frontmatter
+### Cấu hình frontmatter của bài viết blog
 
-Use the `layout` frontmatter field to specify the template you want to map the markdown post to. Here's how the frontmatter of this post looks like:
+Sử dụng trường frontmatter `layout` để chỉ định mẫu bạn muốn ánh xạ bài viết markdown vào. Đây là cách frontmatter của bài viết này trông như thế nào:
 
 ```
 ---
-title: 'New features in v1'
+title: 'Tính năng mới trong phiên bản v1'
 date: '2021-05-26   '
 tags: ['next-js', 'tailwind', 'guide']
 draft: false
-summary: 'Introducing the new layout features - you can map mdx blog content to layout components by configuring the frontmatter field'
+summary: 'Giới thiệu các tính năng bố cục mới - bạn có thể ánh xạ nội dung blog mdx vào các thành phần bố cục bằng cách cấu hình trường frontmatter'
 layout: PostSimple
 ---
 ```
 
-You can configure the default layout in the respective page section by modifying the `DEFAULT_LAYOUT` variable.
-The `DEFAULT_LAYOUT` for blog posts page is set to `PostLayout`.
+Bạn có thể cấu hình bố cục mặc định trong phần trang tương ứng bằng cách sửa đổi biến `DEFAULT_LAYOUT`.
+`DEFAULT_LAYOUT` cho trang bài viết blog được đặt thành `PostLayout`.
 
-### Extend
+### Mở rộng
 
-`layout` is mapped to wrapper which wraps the entire MDX content.
+`layout` được ánh xạ đến wrapper bao bọc toàn bộ nội dung MDX.
 
 ```jsx
 export const MDXComponents = {
@@ -165,39 +165,39 @@ export const MDXLayoutRenderer = ({ layout, mdxSource, ...rest }) => {
 }
 ```
 
-Use the `MDXLayoutRenderer` component on a page where you want to accept a layout name to map to the desired layout.
-You need to pass the layout name from the layout folder (it has to be an exact match).
+Sử dụng thành phần `MDXLayoutRenderer` trên một trang nơi bạn muốn chấp nhận tên bố cục để ánh xạ vào bố cục mong muốn.
+Bạn cần truyền tên bố cục từ thư mục layout (nó phải khớp chính xác).
 
-## Analytics
+## Phân tích
 
-The template now supports [plausible](https://plausible.io/), [simple analytics](https://simpleanalytics.com/) and google analytics.
-Configure `siteMetadata.js` with the settings that correspond with the desired analytics provider.
+Mẫu hiện hỗ trợ [plausible](https://plausible.io/), [simple analytics](https://simpleanalytics.com/) và google analytics.
+Cấu hình `siteMetadata.js` với các cài đặt tương ứng với nhà cung cấp phân tích mong muốn.
 
 ```js
 analytics: {
-    // supports plausible, simpleAnalytics or googleAnalytics
-    plausibleDataDomain: '', // e.g. tailwind-nextjs-starter-blog.vercel.app
-    simpleAnalytics: false, // true or false
-    googleAnalyticsId: '', // e.g. UA-000000-2 or G-XXXXXXX
+    // hỗ trợ plausible, simpleAnalytics hoặc googleAnalytics
+    plausibleDataDomain: '', // ví dụ: tailwind-nextjs-starter-blog.vercel.app
+    simpleAnalytics: false, // true hoặc false
+    googleAnalyticsId: '', // ví dụ: UA-000000-2 hoặc G-XXXXXXX
   },
 ```
 
-Custom events are also supported. You can import the `logEvent` function from `@components/analytics/[ANALYTICS-PROVIDER]` file and call it when
-triggering certain events of interest. _Note_: Additional configuration might be required depending on the analytics provider, please check their official
-documentation for more information.
+Các sự kiện tùy chỉnh cũng được hỗ trợ. Bạn có thể nhập hàm `logEvent` từ tệp `@components/analytics/[ANALYTICS-PROVIDER]` và gọi nó khi
+kích hoạt các sự kiện quan tâm. _Lưu ý_: Có thể cần cấu hình bổ sung tùy thuộc vào nhà cung cấp phân tích, vui lòng kiểm tra tài liệu chính thức
+của họ để biết thêm thông tin.
 
-## Blog comments system
+## Hệ thống bình luận blog
 
-We have also added support for [giscus](https://github.com/laymonage/giscus), [utterances](https://github.com/utterance/utterances) or disqus.
-To enable, simply configure `siteMetadata.js` comments property with the desired provider and settings as specified in the config file.
+Chúng tôi cũng đã thêm hỗ trợ cho [giscus](https://github.com/laymonage/giscus), [utterances](https://github.com/utterance/utterances) hoặc disqus.
+Để kích hoạt, chỉ cần cấu hình thuộc tính comments của `siteMetadata.js` với nhà cung cấp mong muốn và các cài đặt như được chỉ định trong tệp cấu hình.
 
 ```js
 comment: {
-    // Select a provider and use the environment variables associated to it
+    // Chọn một nhà cung cấp và sử dụng các biến môi trường liên quan đến nó
     // https://vercel.com/docs/environment-variables
-    provider: 'giscus', // supported providers: giscus, utterances, disqus
+    provider: 'giscus', // các nhà cung cấp được hỗ trợ: giscus, utterances, disqus
     giscusConfig: {
-      // Visit the link below, and follow the steps in the 'configuration' section
+      // Truy cập liên kết bên dưới và làm theo các bước trong phần 'cấu hình'
       // https://giscus.app/
       repo: process.env.NEXT_PUBLIC_GISCUS_REPO,
       repositoryId: process.env.NEXT_PUBLIC_GISCUS_REPOSITORY_ID,
@@ -292,7 +292,7 @@ Line highlighting and line numbers are now supported out of the box thanks to th
 
 The following javascript code block:
 
-````
+```
 ```js {1, 3-4} showLineNumbers
 var num1, num2, sum
 num1 = prompt('Enter first number')
@@ -300,7 +300,7 @@ num2 = prompt('Enter second number')
 sum = parseInt(num1) + parseInt(num2) // "+" means "add"
 alert('Sum = ' + sum) // "+" means combine into a string
 ```
-````
+```
 
 will appear as:
 

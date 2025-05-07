@@ -30,9 +30,9 @@ export default function BlogCard({ post }: BlogCardProps) {
         <div className="flex items-center justify-between gap-2 px-2 pt-4 text-sm text-gray-500 dark:text-gray-400">
           {formattedDate}
           <div className="flex gap-2">
-            <div>0 likes</div>
+            <div>0 lượt thích</div>
             <div>&middot;</div>
-            <div>0 views</div>
+            <div>0 lượt xem</div>
           </div>
         </div>
         <div className="flex flex-col px-2 py-4">

@@ -1,137 +1,137 @@
 ---
-title: 'Markdown Guide'
+title: 'Hướng dẫn Markdown'
 date: '2019-10-11'
 tags: ['github', 'guide']
 draft: false
-summary: 'Markdown cheatsheet for all your blogging needs - headers, lists, images, tables and more! An illustrated guide based on GitHub Flavored Markdown.'
+summary: 'Bảng cheat markdown cho tất cả nhu cầu viết blog của bạn - tiêu đề, danh sách, hình ảnh, bảng và nhiều hơn nữa! Hướng dẫn minh họa dựa trên GitHub Flavored Markdown.'
 ---
 
-# Introduction
+# Giới thiệu
 
-Markdown and Mdx parsing is supported via `unified`, and other remark and rehype packages. `next-mdx-remote` allows us to parse `.mdx` and `.md` files in a more flexible manner without touching webpack.
+Hỗ trợ phân tích cú pháp Markdown và Mdx thông qua `unified`, và các gói remark và rehype khác. `next-mdx-remote` cho phép chúng ta phân tích các tệp `.mdx` và `.md` một cách linh hoạt hơn mà không cần chạm vào webpack.
 
-GitHub flavored markdown is used. `mdx-prism` provides syntax highlighting capabilities for code blocks. Here's a demo of how everything looks.
+Sử dụng markdown theo kiểu GitHub. `mdx-prism` cung cấp khả năng tô sáng cú pháp cho các khối mã. Đây là demo về cách mọi thứ trông như thế nào.
 
-The following markdown cheatsheet is adapted from: https://guides.github.com/features/mastering-markdown/
+Bảng cheat markdown sau đây được điều chỉnh từ: https://guides.github.com/features/mastering-markdown/
 
-# What is Markdown?
+# Markdown là gì?
 
-Markdown is a way to style text on the web. You control the display of the document; formatting words as bold or italic, adding images, and creating lists are just a few of the things we can do with Markdown. Mostly, Markdown is just regular text with a few non-alphabetic characters thrown in, like `#` or `*`.
+Markdown là một cách để định dạng văn bản trên web. Bạn kiểm soát cách hiển thị của tài liệu; định dạng từ in đậm hoặc in nghiêng, thêm hình ảnh và tạo danh sách chỉ là một vài trong số những điều chúng ta có thể làm với Markdown. Phần lớn, Markdown chỉ là văn bản thông thường với một vài ký tự không phải chữ cái được thêm vào, như `#` hoặc `*`.
 
-# Syntax guide
+# Hướng dẫn cú pháp
 
-Here’s an overview of Markdown syntax that you can use anywhere on GitHub.com or in your own text files.
+Đây là tổng quan về cú pháp Markdown mà bạn có thể sử dụng ở bất kỳ đâu trên GitHub.com hoặc trong các tệp văn bản của riêng bạn.
 
-## Headers
-
-```
-# This is a h1 tag
-
-## This is a h2 tag
-
-#### This is a h4 tag
-```
-
-# This is a h1 tag
-
-## This is a h2 tag
-
-#### This is a h4 tag
-
-## Emphasis
+## Tiêu đề
 
 ```
-_This text will be italic_
+# Đây là thẻ h1
 
-**This text will be bold**
+## Đây là thẻ h2
 
-_You **can** combine them_
+#### Đây là thẻ h4
 ```
 
-_This text will be italic_
+# Đây là thẻ h1
 
-**This text will be bold**
+## Đây là thẻ h2
 
-_You **can** combine them_
+#### Đây là thẻ h4
 
-## Lists
-
-### Unordered
+## Nhấn mạnh
 
 ```
-- Item 1
-- Item 2
-  - Item 2a
-  - Item 2b
+_Văn bản này sẽ in nghiêng_
+
+**Văn bản này sẽ in đậm**
+
+_Bạn **có thể** kết hợp chúng_
 ```
 
-- Item 1
-- Item 2
-  - Item 2a
-  - Item 2b
+_Văn bản này sẽ in nghiêng_
 
-### Ordered
+**Văn bản này sẽ in đậm**
 
-```
-1. Item 1
-1. Item 2
-1. Item 3
-   1. Item 3a
-   1. Item 3b
-```
+_Bạn **có thể** kết hợp chúng_
 
-1. Item 1
-1. Item 2
-1. Item 3
-   1. Item 3a
-   1. Item 3b
+## Danh sách
 
-## Images
+### Không có thứ tự
 
 ```
-![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
-Format: ![Alt Text](url)
+- Mục 1
+- Mục 2
+  - Mục 2a
+  - Mục 2b
 ```
 
-![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
+- Mục 1
+- Mục 2
+  - Mục 2a
+  - Mục 2b
 
-## Links
+### Có thứ tự
 
 ```
-http://github.com - automatic!
+1. Mục 1
+1. Mục 2
+1. Mục 3
+   1. Mục 3a
+   1. Mục 3b
+```
+
+1. Mục 1
+1. Mục 2
+1. Mục 3
+   1. Mục 3a
+   1. Mục 3b
+
+## Hình ảnh
+
+```
+![Logo GitHub](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
+Định dạng: ![Văn bản thay thế](url)
+```
+
+![Logo GitHub](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
+
+## Liên kết
+
+```
+http://github.com - tự động!
 [GitHub](http://github.com)
 ```
 
-http://github.com - automatic!
+http://github.com - tự động!
 [GitHub](http://github.com)
 
-## Blockquotes
+## Trích dẫn
 
 ```
-As Kanye West said:
+Như Kanye West đã nói:
 
-> We're living the future so
-> the present is our past.
+> Chúng ta đang sống trong tương lai nên
+> hiện tại là quá khứ của chúng ta.
 ```
 
-As Kanye West said:
+Như Kanye West đã nói:
 
-> We're living the future so
-> the present is our past.
+> Chúng ta đang sống trong tương lai nên
+> hiện tại là quá khứ của chúng ta.
 
-## Inline code
+## Mã nội dòng
 
 ```
-I think you should use an
-`<addr>` element here instead.
+Tôi nghĩ bạn nên sử dụng phần tử
+`<addr>` ở đây thay thế.
 ```
 
-I think you should use an
-`<addr>` element here instead.
+Tôi nghĩ bạn nên sử dụng phần tử
+`<addr>` ở đây thay thế.
 
-## Syntax highlighting
+## Tô sáng cú pháp
 
-Here’s an example of how you can use syntax highlighting with [GitHub Flavored Markdown](https://help.github.com/articles/basic-writing-and-formatting-syntax/):
+Đây là ví dụ về cách bạn có thể sử dụng tô sáng cú pháp với [GitHub Flavored Markdown](https://help.github.com/articles/basic-writing-and-formatting-syntax/):
 
 ````
 ```js:fancyAlert.js
@@ -143,7 +143,7 @@ function fancyAlert(arg) {
 ```
 ````
 
-And here's how it looks - nicely colored with styled code titles!
+Và đây là cách nó trông như thế nào - được tô màu đẹp mắt với tiêu đề mã được định dạng!
 
 ```js:fancyAlert.js
 function fancyAlert(arg) {
@@ -153,46 +153,46 @@ function fancyAlert(arg) {
 }
 ```
 
-## Footnotes
+## Chú thích cuối trang
 
 ```
-Here is a simple footnote[^1]. With some additional text after it.
+Đây là một chú thích cuối trang đơn giản[^1]. Với một số văn bản bổ sung sau đó.
 
-[^1]: My reference.
+[^1]: Tham chiếu của tôi.
 ```
 
-Here is a simple footnote[^1]. With some additional text after it.
+Đây là một chú thích cuối trang đơn giản[^1]. Với một số văn bản bổ sung sau đó.
 
-[^1]: My reference.
+[^1]: Tham chiếu của tôi.
 
-## Task Lists
-
-```
-- [x] list syntax required (any unordered or ordered list supported)
-- [x] this is a complete item
-- [ ] this is an incomplete item
-```
-
-- [x] list syntax required (any unordered or ordered list supported)
-- [x] this is a complete item
-- [ ] this is an incomplete item
-
-## Tables
-
-You can create tables by assembling a list of words and dividing them with hyphens `-` (for the first row), and then separating each column with a pipe `|`:
+## Danh sách công việc
 
 ```
-| First Header                | Second Header                |
+- [x] yêu cầu cú pháp danh sách (hỗ trợ bất kỳ danh sách không có thứ tự hoặc có thứ tự nào)
+- [x] đây là một mục hoàn thành
+- [ ] đây là một mục chưa hoàn thành
+```
+
+- [x] yêu cầu cú pháp danh sách (hỗ trợ bất kỳ danh sách không có thứ tự hoặc có thứ tự nào)
+- [x] đây là một mục hoàn thành
+- [ ] đây là một mục chưa hoàn thành
+
+## Bảng
+
+Bạn có thể tạo bảng bằng cách lắp ráp một danh sách các từ và chia chúng bằng dấu gạch ngang `-` (cho hàng đầu tiên), và sau đó phân tách mỗi cột bằng dấu gạch dọc `|`:
+
+```
+| Tiêu đề đầu tiên                | Tiêu đề thứ hai                |
 | --------------------------- | ---------------------------- |
-| Content from cell 1         | Content from cell 2          |
-| Content in the first column | Content in the second column |
+| Nội dung từ ô 1         | Nội dung từ ô 2          |
+| Nội dung trong cột đầu tiên | Nội dung trong cột thứ hai |
 ```
 
-| First Header                | Second Header                |
+| Tiêu đề đầu tiên                | Tiêu đề thứ hai                |
 | --------------------------- | ---------------------------- |
-| Content from cell 1         | Content from cell 2          |
-| Content in the first column | Content in the second column |
+| Nội dung từ ô 1         | Nội dung từ ô 2          |
+| Nội dung trong cột đầu tiên | Nội dung trong cột thứ hai |
 
-## Strikethrough
+## Gạch ngang
 
-Any word wrapped with two tildes (like `~~this~~`) will appear ~~crossed out~~.
+Bất kỳ từ nào được bọc bằng hai dấu ngã (như `~~này~~`) sẽ xuất hiện ~~gạch ngang~~.
