@@ -1,5 +1,6 @@
 {
-  "android": 2,
+  "android": 3,
   "coroutine": 1,
-  "hilt": 1
+  "hilt": 1,
+  "architecture": 1
 }
