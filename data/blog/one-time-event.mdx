@@ -8,99 +8,97 @@ summary: 'One-Time Events trong Android: Giải Pháp Hiệu Quả với Channel
 images: ['/static/images/twitter-card.png']
 ---
 
-# One-Time Events trong Android Development: giải quyết vấn đề kinh điển
+# One-Time Events trong Android Development: Giải Quyết Bài Toán Kinh Điển
 
-Xử lý one-time event trong Android nghe thì đơn giản, nhưng thực tế lại là một trong những bài toán kinh điển mà mọi Android developer từng gặp.
-
----
-
-## One-time event là gì?
-
-One-time event (sự kiện một lần) trong Android là những sự kiện chỉ nên được xử lý đúng **một lần duy nhất** trên giao diện người dùng (UI). Ví dụ điển hình bao gồm:
-
-- Hiển thị một thông báo (Toast, Snackbar)
-- Điều hướng sang màn hình khác (Navigation)
-- Hiển thị dialog, popup, v.v.
-
-Khác với state (trạng thái) – có thể được lưu trữ và khôi phục lại khi vòng đời Activity/Fragment thay đổi – one-time event **không nên lặp lại** khi UI được recreate (ví dụ khi xoay màn hình). Nếu không xử lý đúng, sự kiện này có thể bị lặp lại hoặc bị mất, gây ra trải nghiệm không mong muốn cho người dùng.
-
-
-## Vấn Đề: Vậy tại sao one-time events lại khó đến vậy?
-
-Hãy tưởng tượng: người dùng nhấn nút → mở màn hình mới hoặc hiện Toast. Trong lúc đó, người dùng xoay màn hình, hoặc thay đổi cấu hình thì sao?
-
-Có một số vấn đề:
-
-- **Lặp lại sự kiện**: ViewModel có thể phát lại event.
-- **Mất sự kiện**: UI chưa kịp đăng ký đã mất event.
-- **Lifecycle phức tạp**: Android quản lý vòng đời phức tạp khiến sự kiện dễ bị lặp/lạc.
-
-Vậy làm thế nào để giải quyết những vấn đề này?
-
-Hiện tại có một số giải pháp mà các Android developer đã sử dụng:
-
-- LiveData & SingleLiveEvent
-- StateFlow & SharedFlow
-- Channel
-
-Mỗi giải pháp có ưu và nhược điểm riêng, tùy vào từng trường hợp sẽ có cách tiếp cận khác nhau.
+Xử lý one-time event trong Android nghe có vẻ đơn giản, nhưng thực tế lại là một trong những bài toán kinh điển mà gần như mọi Android developer đều từng gặp phải.
 
 ---
 
-## LiveData & SingleLiveEvent: cách tiếp cận truyền thống
+## One-Time Event là gì?
+
+One-time event (sự kiện một lần) là những sự kiện chỉ nên được xử lý **một lần duy nhất** trên giao diện người dùng (UI). Các ví dụ phổ biến:
+
+- Hiển thị thông báo (Toast, Snackbar)
+- Điều hướng sang màn hình khác
+- Hiển thị dialog, popup,...
+
+Khác với *state* – có thể được lưu trữ và phục hồi khi vòng đời của Activity/Fragment thay đổi – one-time event **không nên lặp lại** khi UI được tạo lại (chẳng hạn khi xoay màn hình). Nếu không xử lý đúng, các sự kiện này có thể bị **lặp lại** hoặc **bị mất**, gây ra trải nghiệm không mong muốn cho người dùng.
+
+---
+
+## Vấn đề: Tại sao xử lý one-time event lại khó?
+
+Hãy tưởng tượng: người dùng nhấn nút → mở màn hình mới hoặc hiện một Toast. Trong lúc đó, nếu người dùng xoay màn hình hoặc thay đổi cấu hình thì sao?
+
+Các tình huống có thể xảy ra:
+
+- **Sự kiện bị lặp**: ViewModel phát lại event sau khi UI được recreate
+- **Sự kiện bị mất**: UI chưa kịp đăng ký đã bỏ lỡ event
+- **Vòng đời phức tạp**: Android có lifecycle phức tạp, khiến việc xử lý không đồng nhất
+
+---
+
+## Một số giải pháp phổ biến
+
+- `LiveData` & `SingleLiveEvent`
+- `StateFlow` & `SharedFlow`
+- `Channel`
+
+Mỗi giải pháp có ưu và nhược điểm riêng, và phù hợp với những bối cảnh khác nhau.
+
+---
+
+## LiveData & SingleLiveEvent: Cách tiếp cận truyền thống
 
 ```kotlin
-
 val navigationLiveData = MutableLiveData<Event<String>>()  
 navigationLiveData.value = Event("go_to_profile")
-
 ```
 
-- LiveData kết hợp `Event wrapper` giúp giới hạn UI chỉ xử lý một lần.
-- Nhưng khi xoay màn hình → LiveData re-emit → lặp lại event.
+- Dùng `Event wrapper` để đảm bảo UI chỉ xử lý sự kiện một lần.
+- Tuy nhiên, khi màn hình xoay → LiveData có thể phát lại → **lặp lại sự kiện**.
 
-### `SingleLiveEvent` khắc phục được phần nào, nhưng:
+### `SingleLiveEvent` giúp cải thiện:
 
-- Chỉ phát tới 1 observer → khó test & tái sử dụng
-- Dễ xảy ra race condition
+- Chỉ phát tới một observer → giảm nguy cơ lặp
+- Nhưng khó kiểm thử, khó tái sử dụng
+- Có thể xảy ra race condition nếu không cẩn thận
 
 ---
 
-## StateFlow & SharedFlow: giải pháp hiện đại
+## StateFlow & SharedFlow: Giải pháp hiện đại
 
-### `StateFlow`: Lưu state tốt, nhưng dễ lặp
+### `StateFlow`: Lưu state tốt, nhưng dễ gây lặp event
 
 ```kotlin
-
 private val _stateFlow = MutableStateFlow<Event<String>?>(null)  
 val stateFlow = _stateFlow.asStateFlow()  
 
 fun triggerEvent() {  
     _stateFlow.value = Event("navigate_to_home")  
 }
-
 ```
 
-- `StateFlow` giữ lại giá trị cuối cùng → screen được recreate sẽ **nhận lại** event.
-- Giải pháp: reset lại về `null`, nhưng thêm logic rườm rà.
+- `StateFlow` giữ lại giá trị cuối cùng → khi UI được recreate sẽ **nhận lại event**.
+- Cách khắc phục: reset về `null` sau khi xử lý → nhưng dễ sinh logic rối rắm.
 
 ---
 
-### `SharedFlow`: Gần đúng nhất nhưng phải cẩn thận
+### `SharedFlow`: Phù hợp hơn nhưng cần cẩn trọng
 
-- Không giữ giá trị trước đó → phù hợp với one-time event.
-- Nhưng nếu không ai "listening" thì **event sẽ mất**.
+- Không giữ lại giá trị trước đó → **phù hợp với one-time event**
+- Nhưng nếu chưa có ai "listening" → **event có thể bị mất**
 
-Giải pháp: thiết lập `replay` hoặc `buffer` → lại thêm phức tạp.
+Cách khắc phục: thiết lập `replay` hoặc `extraBufferCapacity`
 
 ---
 
-## Channel: lựa chọn tối ưu
+## Channel: Giải pháp đơn giản và hiệu quả
 
-Channel đảm bảo:
+`Channel` mang lại:
 
-✅ Mỗi event chỉ được tiêu thụ **một lần**  
-✅ Event **xếp hàng chờ** cho đến khi có UI collect
+✅ Mỗi event chỉ được tiêu thụ **một lần duy nhất**  
+✅ Event **xếp hàng chờ** đến khi có UI collect
 
 ```kotlin
 private val _events = Channel<String>()  
@@ -115,12 +113,12 @@ fun sendEvent() {
 
 Nhược điểm:
 
-- Không phù hợp nếu bạn theo MVI nghiêm ngặt
-- Cần cẩn thận khi collect theo Lifecycle
+- Không phù hợp với mô hình MVI nghiêm ngặt
+- Cần collect đúng theo vòng đời để tránh memory leak
 
 ---
 
-## Ví dụ thực tế: Channel trong Jetpack Compose
+## Ví dụ thực tế: Channel kết hợp với Jetpack Compose
 
 ### 1. ViewModel
 
@@ -167,7 +165,7 @@ fun <T> EventEffect(
 
 ---
 
-### 3. UI: Nhận event từ Channel
+### 3. UI: Lắng nghe event từ Channel
 
 ```kotlin
 @Composable  
@@ -196,21 +194,23 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
 ---
 
-### Kết quả
+### Kết quả:
 
-- Người dùng nhấn nút → ViewModel gửi sự kiện → UI hiển thị Toast.
-- Nếu xoay màn hình → Toast không bị lặp.
-- Không bị mất event nếu UI collect đúng cách.
+- Người dùng nhấn nút → ViewModel gửi event → UI hiển thị Toast.
+- Khi xoay màn hình → Toast **không bị lặp lại**.
+- Event **không bị mất** nếu collect đúng cách.
 
 ---
 
-## Best Practice nhanh:
+## Tóm tắt Best Practices
 
-- **State dài hạn** → dùng `StateFlow`
-- **Event một lần** → dùng `Channel` hoặc `SharedFlow` (đã cấu hình buffer)
+| Loại dữ liệu     | Giải pháp phù hợp        |
+|------------------|---------------------------|
+| State dài hạn     | `StateFlow`               |
+| Sự kiện một lần   | `Channel` hoặc `SharedFlow` (có buffer) |
 
 ---
 
 ## Kết luận
 
-Đừng cố tìm giải pháp "hoàn hảo", hãy chọn giải pháp **dễ dùng, phù hợp với team hiện tại**.
+Không có giải pháp nào là "hoàn hảo" cho mọi dự án. Hãy chọn giải pháp **đơn giản, rõ ràng, phù hợp với kiến trúc và team của bạn**. Quan trọng nhất, đừng để one-time event trở thành *one-more-bug*!
