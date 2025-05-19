@@ -8,23 +8,46 @@ summary: 'One-Time Events trong Android: Giải Pháp Hiệu Quả với Channel
 images: ['/static/images/twitter-card.png']
 ---
 
-# One-Time Events trong Android Development: Giải Quyết Vấn Đề Kinh Điển
+# One-Time Events trong Android Development: giải quyết vấn đề kinh điển
 
 Xử lý one-time event trong Android nghe thì đơn giản, nhưng thực tế lại là một trong những bài toán kinh điển mà mọi Android developer từng gặp.
 
 ---
 
-## Vấn Đề: Tại Sao One-Time Events Khó Đến Vậy?
+## One-time event là gì?
 
-Hãy tưởng tượng: người dùng nhấn nút → mở màn hình mới hoặc hiện Toast. Nhưng nếu xoay màn hình thì sao?
+One-time event (sự kiện một lần) trong Android là những sự kiện chỉ nên được xử lý đúng **một lần duy nhất** trên giao diện người dùng (UI). Ví dụ điển hình bao gồm:
+
+- Hiển thị một thông báo (Toast, Snackbar)
+- Điều hướng sang màn hình khác (Navigation)
+- Hiển thị dialog, popup, v.v.
+
+Khác với state (trạng thái) – có thể được lưu trữ và khôi phục lại khi vòng đời Activity/Fragment thay đổi – one-time event **không nên lặp lại** khi UI được recreate (ví dụ khi xoay màn hình). Nếu không xử lý đúng, sự kiện này có thể bị lặp lại hoặc bị mất, gây ra trải nghiệm không mong muốn cho người dùng.
+
+
+## Vấn Đề: Vậy tại sao one-time events lại khó đến vậy?
+
+Hãy tưởng tượng: người dùng nhấn nút → mở màn hình mới hoặc hiện Toast. Trong lúc đó, người dùng xoay màn hình, hoặc thay đổi cấu hình thì sao?
+
+Có một số vấn đề:
 
 - **Lặp lại sự kiện**: ViewModel có thể phát lại event.
 - **Mất sự kiện**: UI chưa kịp đăng ký đã mất event.
 - **Lifecycle phức tạp**: Android quản lý vòng đời phức tạp khiến sự kiện dễ bị lặp/lạc.
 
+Vậy làm thế nào để giải quyết những vấn đề này?
+
+Hiện tại có một số giải pháp mà các Android developer đã sử dụng:
+
+- LiveData & SingleLiveEvent
+- StateFlow & SharedFlow
+- Channel
+
+Mỗi giải pháp có ưu và nhược điểm riêng, tùy vào từng trường hợp sẽ có cách tiếp cận khác nhau.
+
 ---
 
-## Cách Tiếp Cận Truyền Thống: LiveData & SingleLiveEvent
+## LiveData & SingleLiveEvent: cách tiếp cận truyền thống
 
 ```kotlin
 
@@ -43,7 +66,7 @@ navigationLiveData.value = Event("go_to_profile")
 
 ---
 
-## Giải Pháp Hiện Đại: StateFlow & SharedFlow
+## StateFlow & SharedFlow: giải pháp hiện đại
 
 ### `StateFlow`: Lưu state tốt, nhưng dễ lặp
 
@@ -72,7 +95,7 @@ Giải pháp: thiết lập `replay` hoặc `buffer` → lại thêm phức tạ
 
 ---
 
-## Channel: Lựa Chọn Tối Ưu
+## Channel: lựa chọn tối ưu
 
 Channel đảm bảo:
 
@@ -97,7 +120,7 @@ Nhược điểm:
 
 ---
 
-## Ví Dụ Thực Tế: Channel trong Jetpack Compose
+## Ví dụ thực tế: Channel trong Jetpack Compose
 
 ### 1. ViewModel
 
@@ -120,7 +143,31 @@ class MainViewModel : ViewModel() {
 
 ---
 
-### 2. UI: Nhận event từ Channel
+### 2. Custom Composable: `EventEffect`
+
+```kotlin
+@Composable  
+fun <T> EventEffect(  
+    flow: Flow<T>,  
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,  
+    lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,  
+    onEvent: (T) -> Unit  
+) {  
+    LaunchedEffect(lifecycleOwner, flow) {  
+        lifecycleOwner.lifecycle.repeatOnLifecycle(lifecycleState) {  
+            withContext(Dispatchers.Main.immediate) {  
+                flow.collect { event ->  
+                    onEvent(event)  
+                }  
+            }  
+        }  
+    }  
+}
+```
+
+---
+
+### 3. UI: Nhận event từ Channel
 
 ```kotlin
 @Composable  
@@ -149,31 +196,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
 ---
 
-### 3. Custom Composable: `EventEffect`
-
-```kotlin
-@Composable  
-fun <T> EventEffect(  
-    flow: Flow<T>,  
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,  
-    lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,  
-    onEvent: (T) -> Unit  
-) {  
-    LaunchedEffect(lifecycleOwner, flow) {  
-        lifecycleOwner.lifecycle.repeatOnLifecycle(lifecycleState) {  
-            withContext(Dispatchers.Main.immediate) {  
-                flow.collect { event ->  
-                    onEvent(event)  
-                }  
-            }  
-        }  
-    }  
-}
-```
-
----
-
-### Kết Quả
+### Kết quả
 
 - Người dùng nhấn nút → ViewModel gửi sự kiện → UI hiển thị Toast.
 - Nếu xoay màn hình → Toast không bị lặp.
@@ -181,13 +204,13 @@ fun <T> EventEffect(
 
 ---
 
-## Best Practice Nhanh:
+## Best Practice nhanh:
 
 - **State dài hạn** → dùng `StateFlow`
 - **Event một lần** → dùng `Channel` hoặc `SharedFlow` (đã cấu hình buffer)
 
 ---
 
-## Kết Luận
+## Kết luận
 
 Đừng cố tìm giải pháp "hoàn hảo", hãy chọn giải pháp **dễ dùng, phù hợp với team hiện tại**.
