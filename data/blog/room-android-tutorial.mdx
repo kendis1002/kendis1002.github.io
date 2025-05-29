@@ -1,0 +1,270 @@
+---
+title: 'Room trong Android và Các Vấn Đề Thường Gặp'
+date: '2025-05-29'
+lastmod: '2025-05-29'
+tags: ['android', 'room']
+draft: false
+summary: 'Room trong Android và Các Vấn Đề Thường Gặp'
+images: ['/static/images/twitter-card.png']
+---
+
+# Room trong Android và Các Vấn Đề Thường Gặp
+
+---
+
+## 1. Cách khai báo và cài đặt
+
+### **Cài đặt dependencies**
+
+```kotlin
+def room_version = "2.7.1"
+
+implementation "androidx.room:room-runtime:$room_version"
+ksp("androidx.room:room-compiler:$room_version")
+implementation "androidx.room:room-ktx:$room_version"
+```
+
+### **Khai báo các thành phần Room**
+
+```kotlin
+@Entity
+data class User(
+    @PrimaryKey val uid: Int,
+    val name: String
+)
+
+@Dao
+interface UserDao {
+    @Query("SELECT * FROM user")
+    suspend fun getAll(): List<User>
+
+    @Insert
+    suspend fun insert(user: User)
+}
+
+@Database(entities = [User::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun userDao(): UserDao
+}
+```
+
+### **Khởi tạo database**
+
+```kotlin
+val db = Room.databaseBuilder(
+    applicationContext,
+    AppDatabase::class.java, "my-database"
+).build()
+```
+
+---
+
+## 2. Quan hệ 1-1, 1-n, n-n trong Room
+
+### **1 - 1: User - Profile**
+
+```kotlin
+@Entity
+data class Profile(
+    @PrimaryKey val userId: Int,
+    val bio: String
+)
+
+data class UserWithProfile(
+    @Embedded val user: User,
+    @Relation(
+        parentColumn = "uid",
+        entityColumn = "userId"
+    )
+    val profile: Profile
+)
+```
+
+#### **Truy vấn**
+
+```kotlin
+@Transaction
+@Query("SELECT * FROM user WHERE uid = :userId")
+suspend fun getUserWithProfile(userId: Int): UserWithProfile
+```
+
+#### **Insert/Update**
+
+```kotlin
+@Insert suspend fun insertUser(user: User)
+@Insert suspend fun insertProfile(profile: Profile)
+@Update suspend fun updateProfile(profile: Profile)
+```
+
+---
+
+### **1 - N: User - Posts**
+
+```kotlin
+@Entity
+data class Post(
+    @PrimaryKey val id: Int,
+    val userId: Int,
+    val content: String
+)
+
+data class UserWithPosts(
+    @Embedded val user: User,
+    @Relation(
+        parentColumn = "uid",
+        entityColumn = "userId"
+    )
+    val posts: List<Post>
+)
+```
+
+#### **Truy vấn**
+
+```kotlin
+@Transaction
+@Query("SELECT * FROM user WHERE uid = :userId")
+suspend fun getUserWithPosts(userId: Int): UserWithPosts
+```
+
+#### **Insert/Update**
+
+```kotlin
+@Insert suspend fun insertPosts(posts: List<Post>)
+@Update suspend fun updatePost(post: Post)
+```
+
+---
+
+### **N - N: User - Project qua bảng trung gian**
+
+```kotlin
+@Entity
+data class Project(
+    @PrimaryKey val projectId: Int,
+    val name: String
+)
+
+@Entity(primaryKeys = ["userId", "projectId"])
+data class UserProjectCrossRef(
+    val userId: Int,
+    val projectId: Int
+)
+
+data class UserWithProjects(
+    @Embedded val user: User,
+    @Relation(
+        parentColumn = "uid",
+        entityColumn = "projectId",
+        associateBy = Junction(UserProjectCrossRef::class)
+    )
+    val projects: List<Project>
+)
+```
+
+#### **Truy vấn**
+
+```kotlin
+@Transaction
+@Query("SELECT * FROM user WHERE uid = :userId")
+suspend fun getUserWithProjects(userId: Int): UserWithProjects
+```
+
+#### **Insert**
+
+```kotlin
+@Insert suspend fun insertUser(user: User)
+@Insert suspend fun insertProject(project: Project)
+@Insert suspend fun insertUserProjectCrossRef(ref: UserProjectCrossRef)
+```
+
+---
+
+## 3. Migration - Nâng cấp schema
+
+### **Tạo migration thủ công**
+
+```kotlin
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE user ADD COLUMN age INTEGER NOT NULL DEFAULT 0")
+    }
+}
+```
+
+### **Thêm vào database builder**
+
+```kotlin
+Room.databaseBuilder(
+    context,
+    AppDatabase::class.java, "my-database"
+).addMigrations(MIGRATION_1_2).build()
+```
+
+### **Fallback (xoá sạch dữ liệu)**
+
+```kotlin
+Room.databaseBuilder(
+    context,
+    AppDatabase::class.java, "my-database"
+).fallbackToDestructiveMigration().build()
+```
+
+---
+
+## 4. Lắng nghe thay đổi bằng Flow
+
+### **Khai báo DAO trả về `Flow`**
+
+```kotlin
+@Query("SELECT * FROM user")
+fun getAllUsers(): Flow<List<User>>
+```
+
+### **Trong ViewModel**
+
+```kotlin
+val usersFlow: Flow<List<User>> = userDao.getAllUsers()
+```
+
+Hoặc lưu vào `StateFlow`:
+
+```kotlin
+private val _users = MutableStateFlow<List<User>>(emptyList())
+val users: StateFlow<List<User>> = _users
+
+init {
+    viewModelScope.launch {
+        userDao.getAllUsers().collect {
+            _users.value = it
+        }
+    }
+}
+```
+
+### **Trong Compose**
+
+```kotlin
+@Composable
+fun UserList(viewModel: UserViewModel) {
+    val users by viewModel.users.collectAsStateWithLifecycle()
+
+    LazyColumn {
+        items(users, key = { it.uid }) { user ->
+            Text(user.name)
+        }
+    }
+}
+```
+
+---
+
+## Tổng kết
+
+| Tính năng | Ghi chú |
+|----------|---------|
+| Room giúp thao tác SQLite đơn giản và an toàn hơn |
+| Dùng `@Relation`, `@Embedded` để xử lý quan hệ giữa các bảng |
+| Tự quản lý `insert`, `update`, `delete` trong quan hệ |
+| `Flow` giúp lắng nghe thay đổi dữ liệu theo thời gian thực |
+| Luôn dùng `@Transaction` với truy vấn có `@Relation` |
+| Sử dụng migration cẩn thận để đảm bảo dữ liệu không bị mất |
