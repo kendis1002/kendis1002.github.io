@@ -12,9 +12,9 @@ images: ['/static/images/twitter-card.png']
 
 ---
 
-## 1. Cách khai báo và cài đặt
+## Cách khai báo và cài đặt
 
-### **Cài đặt dependencies**
+### Cài đặt dependencies
 
 ```kotlin
 def room_version = "2.7.1"
@@ -24,7 +24,7 @@ ksp("androidx.room:room-compiler:$room_version")
 implementation "androidx.room:room-ktx:$room_version"
 ```
 
-### **Khai báo các thành phần Room**
+### Khai báo các thành phần Room
 
 ```kotlin
 @Entity
@@ -48,7 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
 }
 ```
 
-### **Khởi tạo database**
+### Khởi tạo database
 
 ```kotlin
 val db = Room.databaseBuilder(
@@ -59,9 +59,9 @@ val db = Room.databaseBuilder(
 
 ---
 
-## 2. Quan hệ 1-1, 1-n, n-n trong Room
+## Quan hệ 1-1, 1-n, n-n trong Room
 
-### **1 - 1: User - Profile**
+### 1 - 1: User - Profile
 
 ```kotlin
 @Entity
@@ -80,7 +80,7 @@ data class UserWithProfile(
 )
 ```
 
-#### **Truy vấn**
+#### Get
 
 ```kotlin
 @Transaction
@@ -88,7 +88,7 @@ data class UserWithProfile(
 suspend fun getUserWithProfile(userId: Int): UserWithProfile
 ```
 
-#### **Insert/Update**
+#### Insert/Update
 
 ```kotlin
 @Insert suspend fun insertUser(user: User)
@@ -98,7 +98,7 @@ suspend fun getUserWithProfile(userId: Int): UserWithProfile
 
 ---
 
-### **1 - N: User - Posts**
+### 1 - N: User - Posts
 
 ```kotlin
 @Entity
@@ -118,7 +118,7 @@ data class UserWithPosts(
 )
 ```
 
-#### **Truy vấn**
+#### Get
 
 ```kotlin
 @Transaction
@@ -126,7 +126,7 @@ data class UserWithPosts(
 suspend fun getUserWithPosts(userId: Int): UserWithPosts
 ```
 
-#### **Insert/Update**
+#### Insert/Update
 
 ```kotlin
 @Insert suspend fun insertPosts(posts: List<Post>)
@@ -135,7 +135,7 @@ suspend fun getUserWithPosts(userId: Int): UserWithPosts
 
 ---
 
-### **N - N: User - Project qua bảng trung gian**
+### N - N: User - Project qua bảng trung gian
 
 ```kotlin
 @Entity
@@ -161,7 +161,7 @@ data class UserWithProjects(
 )
 ```
 
-#### **Truy vấn**
+#### Get
 
 ```kotlin
 @Transaction
@@ -169,7 +169,7 @@ data class UserWithProjects(
 suspend fun getUserWithProjects(userId: Int): UserWithProjects
 ```
 
-#### **Insert**
+#### Insert
 
 ```kotlin
 @Insert suspend fun insertUser(user: User)
@@ -181,7 +181,7 @@ suspend fun getUserWithProjects(userId: Int): UserWithProjects
 
 ## 3. Migration - Nâng cấp schema
 
-### **Tạo migration thủ công**
+### Tạo migration thủ công
 
 ```kotlin
 val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -191,7 +191,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 }
 ```
 
-### **Thêm vào database builder**
+### Thêm vào database builder
 
 ```kotlin
 Room.databaseBuilder(
@@ -200,7 +200,7 @@ Room.databaseBuilder(
 ).addMigrations(MIGRATION_1_2).build()
 ```
 
-### **Fallback (xoá sạch dữ liệu)**
+### Fallback (xoá sạch dữ liệu)
 
 ```kotlin
 Room.databaseBuilder(
@@ -213,14 +213,14 @@ Room.databaseBuilder(
 
 ## 4. Lắng nghe thay đổi bằng Flow
 
-### **Khai báo DAO trả về `Flow`**
+### Khai báo DAO trả về `Flow`
 
 ```kotlin
 @Query("SELECT * FROM user")
 fun getAllUsers(): Flow<List<User>>
 ```
 
-### **Trong ViewModel**
+### Trong ViewModel
 
 ```kotlin
 val usersFlow: Flow<List<User>> = userDao.getAllUsers()
@@ -241,7 +241,7 @@ init {
 }
 ```
 
-### **Trong Compose**
+### Trong Compose
 
 ```kotlin
 @Composable
