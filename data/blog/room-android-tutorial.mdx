@@ -96,8 +96,6 @@ suspend fun getUserWithProfile(userId: Int): UserWithProfile
 @Update suspend fun updateProfile(profile: Profile)
 ```
 
----
-
 ### 1 - N: User - Posts
 
 ```kotlin
@@ -132,8 +130,6 @@ suspend fun getUserWithPosts(userId: Int): UserWithPosts
 @Insert suspend fun insertPosts(posts: List<Post>)
 @Update suspend fun updatePost(post: Post)
 ```
-
----
 
 ### N - N: User - Project qua bảng trung gian
 
@@ -179,7 +175,7 @@ suspend fun getUserWithProjects(userId: Int): UserWithProjects
 
 ---
 
-## 3. Migration - Nâng cấp schema
+## Migration - Nâng cấp schema
 
 ### Tạo migration thủ công
 
@@ -211,7 +207,7 @@ Room.databaseBuilder(
 
 ---
 
-## 4. Lắng nghe thay đổi bằng Flow
+## Lắng nghe thay đổi bằng Flow
 
 ### Khai báo DAO trả về `Flow`
 
