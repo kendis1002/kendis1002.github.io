@@ -7,6 +7,7 @@ import { Blog } from 'contentlayer/generated'
 import { formatDate } from 'pliny/utils/formatDate'
 import Link from './Link'
 import Tag from './Tag'
+import siteMetadata from '@/data/siteMetadata'
 
 type BlogCardProps = {
   post: CoreContent<Blog>
@@ -14,7 +15,7 @@ type BlogCardProps = {
 
 export default function BlogCard({ post }: BlogCardProps) {
   const { slug, title, summary, date, tags } = post
-  const formattedDate = formatDate(date)
+  const formattedDate = formatDate(date, siteMetadata.locale)
 
   return (
     <div className="shadow-feature-card group rounded-xl px-4 py-4">
