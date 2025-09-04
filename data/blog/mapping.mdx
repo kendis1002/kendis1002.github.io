@@ -39,19 +39,19 @@ Việc thay đổi API hoặc UI có thể gây ảnh hưởng dây chuyền.
 
 ## Vai trò mapping của từng layer
 
-###Data Layer
+### Data Layer
 
 Mapping DTO ↔ Domain.
 DTO không được xuất hiện ngoài Data Layer.
 
 Ví dụ: UserDTO.toDomain().
 
-###Domain Layer
+### Domain Layer
 
 Không chứa mapper ra Presentation.
 Có thể có mapper ngược về Data nếu cần gửi request (Domain → DTO).
 
-###Presentation Layer
+### Presentation Layer
 
 Mapping Domain → UI Model.
 Thêm field phục vụ UI (ví dụ định dạng text, style).
@@ -189,9 +189,9 @@ Tuy nhiên trong thực tế người ta hay lược bớt UI Object mà có th�
 
 - Không để DTO hoặc UI Model xuất hiện trong Domain.
 - Mapper nên là extension function: dễ đọc, dễ test.
-- Với list: dùng ```map { it.asDomain() }``` hoặc tạo ListMapper nếu cần tái sử dụng nhiều.
+- Với list: dùng ```map { it.toDomain() }``` hoặc tạo ListMapper nếu cần tái sử dụng nhiều.
 - UseCase không chứa mutable state và luôn có thể test độc lập.
-- Nếu dự án lớn: gom tất cả mapper vào module riêng (mappers) như trong MappersGuide.
+- Nếu dự án lớn: gom tất cả mapper vào module riêng (mappers).
 
 Việc tách bạch rõ ràng Data, Domain và Presentation với mapper:
 
