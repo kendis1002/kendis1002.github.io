@@ -1,7 +1,7 @@
 ---
 title: 'Mapping data trong Android với clean architecture'
 date: '2025-08-19'
-lastmod: '2023-08-19'
+lastmod: '2025-08-19'
 tags: ['android', 'architecture']
 draft: false
 summary: 'Mapping data trong Android với clean architecture'
@@ -16,8 +16,6 @@ Bài viết này sẽ hướng dẫn bạn:
 - Vai trò của từng tầng trong mapping.
 - Template code đầy đủ.
 - Cấu trúc thư mục gợi ý và một số lưu ý.
-
----
 
 ## Vì sao cần mapping dữ liệu giữa các tầng?
 
@@ -34,8 +32,6 @@ Nếu không mapping:
 Domain có thể bị “bẩn” bởi chi tiết của API.
 UI có thể bị gò bó vì Domain Model không phù hợp để hiển thị trực tiếp.
 Việc thay đổi API hoặc UI có thể gây ảnh hưởng dây chuyền.
-
----
 
 ## Vai trò mapping của từng layer
 
@@ -57,8 +53,6 @@ Mapping Domain → UI Model.
 Thêm field phục vụ UI (ví dụ định dạng text, style).
 
 Ví dụ: User.toPresentation().
-
----
 
 ## Template code đầy đủ
 
@@ -182,8 +176,6 @@ fun Run.toRunUi(): RunUi {
 ```
 
 Tuy nhiên trong thực tế người ta hay lược bớt UI Object mà có thể sử dụng luôn Domain Object
-
----
 
 ## Quy tắc chung khi implement
 

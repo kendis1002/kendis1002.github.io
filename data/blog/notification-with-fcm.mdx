@@ -1,0 +1,321 @@
+---
+title: 'Notification trong Android với Firebase Cloud Messaging (FCM)'
+date: '2025-09-15'
+lastmod: '2025-09-15'
+tags: ['android', 'firebase']
+draft: false
+summary: 'Notification trong Android với Firebase Cloud Messaging (FCM)'
+images: ['/static/images/twitter-card.png']
+---
+
+Gần như hầu hết các ứng dụng hiện nay đều có chức năng thông báo (notification). 
+Bài viết dưới đây sẽ hướng dẫn cấu trúc, cách implement chức năng notification đó trên Android bằng Firebase Notification Messaging.
+
+---
+
+## Kiến trúc tổng quan về Notification
+
+- **Server**: Backend sẽ gửi thông báo (qua Firebase Cloud Messaging – FCM).
+- **Firebase**: Đóng vai trò trung gian nhận request từ server, đẩy xuống device.
+- **Android app**: Lắng nghe và hiển thị notification. Nếu notification có chứa deeplink → mở đúng màn hình khi user nhấn.
+
+## Các loại thông báo
+
+Trên Android, dựa vào trạng thái của application sẽ chia ra làm 2 loại thông báo chính mà cách thức hoạt động của chúng khác nhau:
+
+| **Trạng thái App** | **Payload notification** | **Payload data** |
+|---------------------|--------------------------|------------------|
+| Foreground          | Không auto hiển thị, ```onMessageReceived()``` sẽ được gọi nhưng không show → bạn phải tự hiện notification. | Hàm onMessageReceived() luôn được gọi, |
+| Background/Terminated          | Hiển thị UI tự động (nếu có `notification` payload). | App không nhận sự kiện ngay lập tức. |
+
+Tổng kết lại, với foreground thì lúc đó application của bạn sẽ đang ở trên màn hình và bạn có thể custom được cách hiển thị của thông báo đó ngay chính trên application thành 1 popup, 1 dialog hay toast…. Còn đối với background/terminated thì không thể custom được và thông báo sẽ hiển thị thông tin theo format của hệ điều hành với các thông tin mà server gửi sang.
+
+Tuy nhiên trong thực tế người ta sẽ làm cho ```onMessageReceived``` luôn nhận để có thể custom được channel, custom được nội dung thông báo, deeplink… và cách đó sẽ được giải thích sau.
+
+Note: **onMessageReceived()** là hàm trong class kế thừa từ FirebaseMessagingService, hàm này sẽ được gọi mỗi khi có tin nhắn gửi đến.
+
+## Làm sao để Server biết được cần gửi cho thiết bị nào?
+
+Thường thì sẽ có 2 cách: server gửi theo fcmToken hoặc device sẽ subscribe vào 1 topic và server sẽ gửi notification vào topic đó
+
+### Cách 1: Gửi theo FCM Token (Device Token)
+
+* Khi app cài lần đầu, Firebase tạo cho app 1 FCM Registration Token duy nhất.
+* Token này được lấy trong Android bằng:
+```kotlin
+FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+    if (task.isSuccessful) {
+        val token = task.result
+        // Gửi token này lên server, gắn với user đang login
+    }
+}
+```
+* Mỗi token đại diện cho 1 instance app trên 1 thiết bị.
+* Khi user đăng nhập → app gửi token lên server (kèm userId).
+* Server lưu vào database tương ứng với từng user.
+* Sau này, khi cần gửi notification cho user cụ thể → server lấy token tương ứng để gọi API FCM.
+* Lưu ý: Token có thể thay đổi (ví dụ khi app được cài lại, hoặc user xóa dữ liệu app). Vì vậy cần cập nhật token định kỳ (ví dụ mỗi lần app khởi động).
+
+👉 Trường hợp này server biết "địa chỉ" user thông qua token mà app gửi lên khi login.
+
+### Cách 2: Gửi theo Topic
+* App có thể subscribe vào 1 hoặc nhiều topic.
+* Trên Android:
+
+```kotlin
+FirebaseMessaging.getInstance().subscribeToTopic("news")
+```
+* Server gửi notification đến tất cả thiết bị đã subscribe vào topic đó.
+
+```kotlin
+{
+  "to": "/topics/news",
+  // Dùng "body" để custom notification
+  "notification": {
+    "title": "Breaking News",
+    "body": "New article available!"
+  }
+}
+```
+
+👉 Dùng cho broadcast: gửi thông báo sự kiện, tin tức, khuyến mãi.
+
+
+## Implement ở Server
+
+Ở đây tôi sẽ sử dụng Nodejs
+
+### Bước 1: Tạo Firebase Project và tải file json cấu hình
+* Vào Firebase Console → tạo project.
+* Bật Cloud Messaging.
+
+Service Account Key
+* Vào Project Settings → Service accounts → Generate new private key.
+* Tải file .json về (gồm client_email, private_key).
+
+### Bước 2: Cài đặt thư viện firebase-admin
+
+```bash
+npm install firebase-admin
+```
+
+### Bước 3: Gửi notification
+```javascript
+
+const admin = require("firebase-admin");
+
+// Load key JSON tải từ Firebase
+const serviceAccount = require("./firebase-service-account.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+async function sendToDevice(token) {
+  const message = {
+    token: token,
+    data: {
+      title: "Thông báo mới",
+      body: "Bạn có tin nhắn mới!",
+      deeplink: "myapp://profile/123"
+    },
+    // Nếu muốn hệ thống Android tự hiển thị khi background:
+    notification: {
+      title: "Thông báo mới",
+      body: "Bạn có tin nhắn mới!"
+    }
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+    console.log("Sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending message:", error);
+  }
+};
+
+async function sendToTopic() {
+  const message = {
+    topic: "news",
+    data: {
+      title: "Thông báo mới",
+      body: "Bạn có tin nhắn mới!",
+      deeplink: "myapp://profile/123"
+    },
+    // Nếu muốn hệ thống Android tự hiển thị khi background:
+    notification: {
+      title: "Tin tức mới",
+      body: "Hãy đọc bài viết nóng hổi sáng nay!"
+    }
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+    console.log("Sent to topic:", response);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+```
+
+Nếu muốn luôn luôn gọi hàm ```onMessageReceived()``` thì chỉ cần dùng field ```data``` và bỏ đi field ```notification```. Cơ bản là thế.
+
+## Implement ở Android
+
+### Bước 1: Thêm Firebase vào project Android
+### Bước 2: Thêm dependency
+
+```gradle
+implementation 'com.google.firebase:firebase-messaging:24.0.0'
+```
+
+### Bước 3: Tạo class kế thừa FirebaseMessagingService
+
+```kotlin
+
+@HiltAndroidApp
+class MyApplication : Application()
+
+@AndroidEntryPoint
+class MyFirebaseMessagingService : FirebaseMessagingService() {
+
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // Nếu server gửi "notification" payload thì hệ thống tự hiển thị
+        // Nếu gửi "data" payload thì ta tự custom
+        val data = remoteMessage.data
+        val deeplink = data["deeplink"]
+
+        showNotification(
+            title = data["title"] ?: "Thông báo",
+            message = data["body"] ?: "",
+            deeplink = deeplink
+        )
+    }
+
+    override fun onNewToken(token: String) {
+        // Gửi token này lên server để gắn với user
+    }
+
+    private fun showNotification(title: String, message: String, deeplink: String?) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            deeplink?.let {
+                data = Uri.parse(it) // ví dụ: myapp://profile/123
+            }
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent, PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val channelId = "my_channel_id"
+        val builder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, "General", NotificationManager.IMPORTANCE_DEFAULT)
+            manager.createNotificationChannel(channel)
+        }
+        manager.notify(1, builder.build())
+    }
+}
+```
+
+### Bước 4: Đăng ký service trong AndroidManifest.xml
+
+```xml
+<service
+    android:name=".MyFirebaseMessagingService"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+    </intent-filter>
+</service>
+```
+
+### Bước 5: Thêm quyền nếu chưa có sẵn
+
+```xml
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+```
+
+### Bước 6: Yêu cầu quyền (Android 13+)
+
+```kotlin
+
+@Composable
+fun NotificationPermissionRequest() {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                Toast.makeText(context, "Notification permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    // Chỉ request nếu Android 13+ (API 33 trở lên)
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+}
+
+@Composable
+fun MainScreen() {
+    NotificationPermissionRequest()
+
+    // ... nội dung UI chính
+}
+```
+
+### Bước 7: Tạo deeplink trong AndroidManifest.xml
+
+Cái này cũng tuỳ cách implement navigation của bạn, Jetpack navigation hay Jetpack Compose Navigation 2 hay 3 mà implement. Cơ bản nó sẽ theo deeplink được server gửi về (“myapp://profile/123” như ở ví dụ trên).
+
+### Bước 8: Gửi token lên server khi có token mới
+
+```kotlin
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            // Lấy token
+            val token = task.result
+            Log.d("FCM", "FCM token: $token")
+
+            // TODO: Gửi token lên server của bạn
+        }
+    }
+}
+
+@AndroidEntryPoint
+class MyFirebaseMessagingService : FirebaseMessagingService() {
+    // ...
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        Log.d("FCM", "Refreshed token: $token")
+
+        // TODO: Gửi token mới lên server
+    }
+}
+```
+
+## Kết luận
+
+Vừa rồi là toàn bộ các bước để implement chức năng notification trong Android với Firebase Cloud Messaging (FCM). Hy vọng bài viết sẽ giúp bạn có cái nhìn tổng quan và chi tiết về cách thức hoạt động cũng như cách implement chức năng này trong ứng dụng của mình.

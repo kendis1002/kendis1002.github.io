@@ -12,8 +12,6 @@ images: ['/static/images/twitter-card.png']
 
 Xử lý one-time event trong Android nghe có vẻ đơn giản, nhưng thực tế lại là một trong những bài toán kinh điển mà gần như mọi Android developer đều từng gặp phải.
 
----
-
 ## One-Time Event là gì?
 
 One-time event (sự kiện một lần) là những sự kiện chỉ nên được xử lý **một lần duy nhất** trên giao diện người dùng (UI). Các ví dụ phổ biến:
@@ -36,8 +34,6 @@ Các tình huống có thể xảy ra:
 - **Sự kiện bị mất**: UI chưa kịp đăng ký đã bỏ lỡ event
 - **Vòng đời phức tạp**: Android có lifecycle phức tạp, khiến việc xử lý không đồng nhất
 
----
-
 ## Một số giải pháp phổ biến
 
 - `LiveData` & `SingleLiveEvent`
@@ -45,8 +41,6 @@ Các tình huống có thể xảy ra:
 - `Channel`
 
 Mỗi giải pháp có ưu và nhược điểm riêng, và phù hợp với những bối cảnh khác nhau.
-
----
 
 ## LiveData & SingleLiveEvent: Cách tiếp cận truyền thống
 
@@ -64,8 +58,6 @@ navigationLiveData.value = Event("go_to_profile")
 - Nhưng khó kiểm thử, khó tái sử dụng
 - Có thể xảy ra race condition nếu không cẩn thận
 
----
-
 ## StateFlow & SharedFlow: Giải pháp hiện đại
 
 ### `StateFlow`: Lưu state tốt, nhưng dễ gây lặp event
@@ -82,16 +74,12 @@ fun triggerEvent() {
 - `StateFlow` giữ lại giá trị cuối cùng → khi UI được recreate sẽ **nhận lại event**.
 - Cách khắc phục: reset về `null` sau khi xử lý → nhưng dễ sinh logic rối rắm.
 
----
-
 ### `SharedFlow`: Phù hợp hơn nhưng cần cẩn trọng
 
 - Không giữ lại giá trị trước đó → **phù hợp với one-time event**
 - Nhưng nếu chưa có ai "listening" → **event có thể bị mất**
 
 Cách khắc phục: thiết lập `replay` hoặc `extraBufferCapacity`
-
----
 
 ## Channel: Giải pháp đơn giản và hiệu quả
 
@@ -116,8 +104,6 @@ Nhược điểm:
 - Không phù hợp với mô hình MVI nghiêm ngặt
 - Cần collect đúng theo vòng đời để tránh memory leak
 
----
-
 ## Ví dụ thực tế: Channel kết hợp với Jetpack Compose
 
 ### 1. ViewModel
@@ -138,8 +124,6 @@ class MainViewModel : ViewModel() {
     }  
 }
 ```
-
----
 
 ### 2. Custom Composable: `EventEffect`
 
@@ -162,8 +146,6 @@ fun <T> EventEffect(
     }  
 }
 ```
-
----
 
 ### 3. UI: Lắng nghe event từ Channel
 
@@ -192,15 +174,11 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 }
 ```
 
----
-
 ### Kết quả:
 
 - Người dùng nhấn nút → ViewModel gửi event → UI hiển thị Toast.
 - Khi xoay màn hình → Toast **không bị lặp lại**.
 - Event **không bị mất** nếu collect đúng cách.
-
----
 
 ## Tóm tắt Best Practices
 
@@ -208,8 +186,6 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 |------------------|---------------------------|
 | State dài hạn     | `StateFlow`               |
 | Sự kiện một lần   | `Channel` hoặc `SharedFlow` (có buffer) |
-
----
 
 ## Kết luận
 

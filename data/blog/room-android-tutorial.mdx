@@ -57,8 +57,6 @@ val db = Room.databaseBuilder(
 ).build()
 ```
 
----
-
 ## Quan hệ 1-1, 1-n, n-n trong Room
 
 ### 1 - 1: User - Profile
@@ -173,8 +171,6 @@ suspend fun getUserWithProjects(userId: Int): UserWithProjects
 @Insert suspend fun insertUserProjectCrossRef(ref: UserProjectCrossRef)
 ```
 
----
-
 ## Migration - Nâng cấp schema
 
 ### Tạo migration thủ công
@@ -204,8 +200,6 @@ Room.databaseBuilder(
     AppDatabase::class.java, "my-database"
 ).fallbackToDestructiveMigration().build()
 ```
-
----
 
 ## Lắng nghe thay đổi bằng Flow
 
@@ -252,15 +246,11 @@ fun UserList(viewModel: UserViewModel) {
 }
 ```
 
----
-
 ## Tổng kết
 
-| Tính năng| 
-|-------------------|
-| Room giúp thao tác SQLite đơn giản và an toàn hơn |
-| Dùng `@Relation`, `@Embedded` để xử lý quan hệ giữa các bảng |
-| Tự quản lý `insert`, `update`, `delete` trong quan hệ |
-| `Flow` giúp lắng nghe thay đổi dữ liệu theo thời gian thực |
-| Luôn dùng `@Transaction` với truy vấn có `@Relation` |
-| Sử dụng migration cẩn thận để đảm bảo dữ liệu không bị mất |
+* Room giúp thao tác SQLite đơn giản và an toàn hơn
+* Dùng `@Relation`, `@Embedded` để xử lý quan hệ giữa các bảng
+* Tự quản lý `insert`, `update`, `delete` trong quan hệ
+* `Flow` giúp lắng nghe thay đổi dữ liệu theo thời gian thực
+* Luôn dùng `@Transaction` với truy vấn có `@Relation`
+* Sử dụng migration cẩn thận để đảm bảo dữ liệu không bị mất
