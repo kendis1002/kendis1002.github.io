@@ -145,7 +145,7 @@ export default function ListLayoutWithTags({
                               {title}
                             </Link>
                           </h2>
-                          <div className="flex flex-wrap">
+                          <div className="flex-wr mt-2 flex gap-2">
                             {tags?.map((tag) => <Tag key={tag} text={tag} />)}
                           </div>
                         </div>
