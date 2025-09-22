@@ -1,0 +1,95 @@
+---
+title: 'Spacing trong mobile app'
+date: '2025-09-22'
+lastmod: '2025-09-22'
+tags: ['android', 'uxui']
+draft: false
+summary: 'Spacing trong mobile app'
+images: ['/static/images/twitter-card.png']
+---
+
+Khi xây dựng một ứng dụng mobile, yếu tố giao diện (UI) đóng vai trò cực kỳ quan trọng để mang lại trải nghiệm dễ chịu cho người dùng. Một trong những “bí kíp” giúp app trông gọn gàng, hiện đại và dễ sử dụng chính là spacing – tức là khoảng cách giữa các thành phần giao diện.
+
+Trong bài viết này, chúng ta sẽ cùng tìm hiểu:
+
+- Spacing là gì?
+- Một số best practices để áp dụng hiệu quả
+
+## Spacing là gì?
+
+Spacing là cách bạn bố trí khoảng trống giữa các thành phần trong giao diện.
+Ví dụ:
+
+- Khoảng cách giữa nút bấm và đoạn text bên trên.
+- Padding trong một ô input.
+- Khoảng trống giữa các card trong danh sách.
+
+👉 Spacing không chỉ là “chừa chỗ trống”, mà nó giúp:
+
+- Làm giao diện thoáng và dễ đọc.
+- Tạo mối quan hệ thị giác (cái nào thuộc nhóm, cái nào tách biệt).
+- Tăng khả năng nhấn chính xác vào các nút bấm.
+
+## Một số best practices
+
+### Margin 2 bên màn hình
+
+Với khoảng cách 2 bên màn hình, tôi sẽ sử dụng từ 4-16px để phân chia rõ ràng nội dung và cạnh.
+
+![Side margins](/static/images/blog/uxui-spacing-mobile/ui-spacing-side-margin.jpg)
+
+### Padding giữa tiêu đề và nội dung
+
+Trong trường hợp này, tôi thường sử dụng từ 12-16px. Khoảng cách này tuỳ thuộc vào loại và độ lớn của các component.
+
+![Padding between title&content](/static/images/blog/uxui-spacing-mobile/ui-spacing-margin-between-title-content.jpg)
+
+### Margin giữa các card
+
+Cho cả card, tab và chip, tôi dùng từ 4-16px để mà các component không quá xa với nhau. Thông thường tôi thích khoảng cách nhỏ hơn, nhưng mà vần tuỳ thuộc vào chiều của card và kích thước của chúng.
+
+![Margin between cards](/static/images/blog/uxui-spacing-mobile/ui-spacing-margin-between-card.jpg)
+
+### Margin giữa các section
+
+Nếu tiêu đề các các thành phần không nằm trong các card thì tôi sẽ dùng 1 khoảng cách lớn, từ 20-32px giữa các section để phân tách rõ các nhóm phần từ liên kết trong khi vẫn cho chúng nó thêm chút không gian.
+
+![Margin between sections](/static/images/blog/uxui-spacing-mobile/ui-spacing-between-section.jpg)
+
+### Padding giữa các input
+
+Trên màn hình mobile, tôi sử dụng giá trị từ 12-16px để tách biệt các input với nhau. Nhất là khi các input có label ở phía trên và gây ra cảm giác rằng các input quá gần với nhau. 
+
+![Padding between inputs](/static/images/blog/uxui-spacing-mobile/ui-spacing-between-input.jpg)
+
+### Padding trong tab
+
+Đối với tab tôi sử dụng các giá trị giống hệt với button. Tuy nhiên, đối với tab của toggle form thì tôi sẽ thêm padding để tách biệt nó với nền.
+
+![Padding inside tabs](/static/images/blog/uxui-spacing-mobile/ui-spacing-inside-tab.jpg)
+
+### Padding trong button
+
+Tôi sử dụng 6-8px giữa icon và label. Với padding ở top và bottom tôi sẽ dùng 12-16px để đảm bảo button có độ cao là 44-52px. Padding 2 bên sẽ tăng theo tỉ lệ để cân đối.
+
+![Padding inside button](/static/images/blog/uxui-spacing-mobile/ui-spacing-inside-button.jpg)
+
+### Padding trong tabbar
+
+Đối với tabbar, tôi sử dụng khoảng cách nhỏ hơn giữa icon và label để tạo hiệu ứng kết nối và padding lớn hơn để dễ nhấp vào hơn. 
+
+![Padding inside button](/static/images/blog/uxui-spacing-mobile/ui-spacing-inside-tab-bar.jpg)
+
+## Bảng tổng hợp spacing trong thiết kế mobile app
+
+| Thành phần                       | Khoảng cách khuyến nghị                                | Ghi chú                                                                 |
+|----------------------------------|-------------------------------------------------------|------------------------------------------------------------------------|
+| **Giữa các input**               | **12–16px** <br></br> Label ↔ Input: **4–8px**                       | Giúp form dễ đọc, thoáng và không bị dính                              |
+| **Giữa các section**             | **20–32px**                                               | Dùng margin lớn để phân tách rõ ràng các nhóm thông tin                |
+| **Button (paddings)**            | Trên/Dưới: **12–16px** <br></br> Trái/Phải: **16–24px** <br></br> Icon ↔ Label: **6–8px** | Đảm bảo button cao **44–52px** để dễ thao tác                          |
+| **Tab bar (paddings)**           | Trên/Dưới: **12–16px** <br></br> Icon ↔ Label: **4–8px**             | Giúp icon + text cân đối, dễ nhấn                                       |
+| **Tabs (toggle tabs)**           | Quanh: **12–16px** <br></br> Icon ↔ Label: **6–8px**                 | Khoảng cách đủ để tab nổi bật, dễ phân biệt                            |
+| **Giữa các card**                | **4–16px**                                                | Khoảng nhỏ → gắn kết \\ Khoảng lớn → thoáng và tách biệt               |
+| **Title ↔ Content**              | **12–16px**                                               | Giữ sự gắn kết nhưng không bị dính sát                                  |
+| **Side margins (mép màn hình)**  | **4–16px**                                                | Tránh nội dung chạm sát viền, tăng tính thẩm mỹ và dễ đọc              |
+
