@@ -96,7 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Image
               width={1512}
               height={550}
-              className="absolute top-0 left-1/2 -z-10 -translate-x-1/2"
+              className="fixed top-0 left-1/2 -z-10 -translate-x-1/2"
               src="/static/images/gradient-background-top.png"
               alt=""
               role="presentation"
@@ -105,7 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Image
               width={1512}
               height={447}
-              className="absolute left-1/2 -z-10 -translate-x-1/2 -translate-y-[100%]"
+              className="fixed bottom-0 left-1/2 -z-10 -translate-x-1/2"
               src="/static/images/gradient-background-bottom.png"
               alt=""
               role="presentation"
