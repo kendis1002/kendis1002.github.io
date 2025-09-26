@@ -60,7 +60,7 @@ const Header = () => {
               )
             })}
         </div>
-        <SearchButton />
+        {/* <SearchButton /> */}
         <ThemeSwitch />
         <MobileNav />
       </div>
