@@ -26,6 +26,7 @@ dependencies {
 Chỉ giữ logic kết nối + send/receive, không quản lý lifecycle.
 
 ```kotlin
+@Singleton
 class WebSocketService(private val url: String) {
 
     private var socket: WebSocket? = null
@@ -54,7 +55,8 @@ class WebSocketService(private val url: String) {
 ## Repository tạo Flow bằng callbackFlow
 
 ```kotlin
-class ChatRepository(
+@Singleton
+class ChatRepository @Inject constructor(
     private val service: WebSocketService
 ) {
 
@@ -85,7 +87,8 @@ Repo chỉ:
 ## ViewModel dùng viewModelScope để collect Flow
 
 ```kotlin
-class ChatViewModel(
+@HiltViewModel
+class ChatViewModel @Inject constructor(
     private val repo: ChatRepository
 ) : ViewModel() {
 
