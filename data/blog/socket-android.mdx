@@ -1,0 +1,125 @@
+---
+title: 'Socket trong Android'
+date: '2025-11-17'
+lastmod: '2025-11-17'
+tags: ['android', 'socket']
+draft: false
+summary: 'Socket trong Android'
+images: ['/static/images/twitter-card.png']
+---
+
+Trong Android, Socket là giải pháp tối ưu khi bạn cần giao tiếp thời gian thực giữa thiết bị và server—như chat, tracking hay game. Không giống các request REST rời rạc, Socket giữ kết nối liên tục, giúp truyền dữ liệu nhanh và ổn định hơn.
+Blog này sẽ tập trung vào các khía cạnh thực tiễn: cách tạo kết nối, xử lý với flow. Nếu bạn muốn hiểu rõ và áp dụng Socket đúng cách trong Android, đây sẽ là nơi bắt đầu phù hợp.
+
+---
+# Socket trong Android
+
+---
+
+## Cài đặt dependencies
+
+```kotlin
+dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") // or latest
+}
+```
+
+## Tạo WebSocketService
+
+Chỉ giữ logic kết nối + send/receive, không quản lý lifecycle.
+
+```kotlin
+class WebSocketService(private val url: String) {
+
+    private var socket: WebSocket? = null
+
+    fun connect(onMessage: (String) -> Unit) {
+        val client = OkHttpClient()
+        val req = Request.Builder().url(url).build()
+
+        socket = client.newWebSocket(req, object : WebSocketListener() {
+            override fun onMessage(ws: WebSocket, text: String) {
+                onMessage(text)
+            }
+        })
+    }
+
+    fun send(text: String): Boolean {
+        return socket?.send(text) ?: false
+    }
+
+    fun close() {
+        socket?.close(1000, "closed")
+    }
+}
+```
+
+## Repository tạo Flow bằng callbackFlow
+
+```kotlin
+class ChatRepository(
+    private val service: WebSocketService
+) {
+
+    fun messagesFlow(): Flow<String> = callbackFlow {
+        service.connect { text ->
+            trySend(text)
+        }
+
+        awaitClose {
+            service.close()
+        }
+    }
+
+    fun sendMessage(text: String) {
+        service.send(text)
+    }
+}
+```
+
+Repo chỉ:
+
+- Chuyển callback → Flow
+- Không tạo coroutine scope
+- Không collect ở đây
+
+→ repo = provider của dữ liệu
+
+## ViewModel dùng viewModelScope để collect Flow
+
+```kotlin
+class ChatViewModel(
+    private val repo: ChatRepository
+) : ViewModel() {
+
+    private val _messages = MutableStateFlow<List<String>>(emptyList())
+    val messages = _messages.asStateFlow()
+
+    init {
+        observeMessages()
+    }
+
+    private fun observeMessages() {
+        viewModelScope.launch {
+            repo.messagesFlow().collect { msg ->
+                _messages.update { oldList ->
+                    oldList + msg
+                }
+            }
+        }
+    }
+
+    fun send(msg: String) {
+        repo.sendMessage(msg)
+    }
+}
+```
+
+ViewModelScope giúp:
+- Tự hủy khi ViewModel hủy
+- socket auto close thông qua awaitClose trong repo
+
+## Bonus: Nếu bạn muốn shared WebSocket cho nhiều ViewModel
+
+- Tạo sharedFlow: messagesFlow().shareIn(appScope) ở Repository.
+- Vẫn để callbackFlow trong repo.
