@@ -108,37 +108,51 @@ class SearchViewModel(
             .flatMapLatest { keyword ->
                 flow {
                     if (keyword.isBlank()) {
-                        emit(SearchState())
+                        _uiState.update {
+                            it.copy(
+                                results = emptyList(),
+                                isLoading = false,
+                                error = null
+                            )
+                        }
                         return@flow
                     }
 
-                    emit(_uiState.value.copy(isLoading = true))
-
-                    try {
-                        val data = repository.search(keyword)
-                        emit(
-                            _uiState.value.copy(
-                                isLoading = false,
-                                results = data,
-                                error = null
-                            )
-                        )
-                    } catch (e: Exception) {
-                        emit(
-                            _uiState.value.copy(
-                                isLoading = false,
-                                error = e.message
-                            )
+                    // Bắt đầu search -> bật loading, clear error cũ
+                    _uiState.update {
+                        it.copy(
+                            isLoading = true,
+                            error = null
                         )
                     }
+
+                    emit(repository.search(keyword))
                 }
             }
-            .onEach { newState -> _uiState.value = newState }
+            .onEach { data ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        results = data,
+                        error = null
+                    )
+                }
+            }
+            .catch { e ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Error"
+                    )
+                }
+            }
             .launchIn(viewModelScope)
     }
 
     fun onQueryChange(text: String) {
-        _query.value = text
+        _uiState.update {
+            it.copy(query = text)
+        }
     }
 }
 
