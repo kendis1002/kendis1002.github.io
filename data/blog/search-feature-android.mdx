@@ -45,7 +45,6 @@ class SearchViewModel(
     fun onQueryChange(query: String) {
         _uiState.update { it.copy(query = query) }
 
-        // Cancel job cũ nếu user gõ tiếp
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
@@ -118,7 +117,6 @@ class SearchViewModel(
                         return@flow
                     }
 
-                    // Bắt đầu search -> bật loading, clear error cũ
                     _uiState.update {
                         it.copy(
                             isLoading = true,
@@ -187,7 +185,7 @@ fun SearchScreen(state: SearchUiState) {
     ) {
 
         TextField(
-            value = state.query, // or 
+            value = state.query,
             onValueChange = viewModel::onQueryChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Search...") }
@@ -216,14 +214,6 @@ fun SearchScreen(state: SearchUiState) {
     }
 }
 ```
-
-Repo chỉ:
-
-- Chuyển callback → Flow
-- Không tạo coroutine scope
-- Không collect ở đây
-
-→ repo = provider của dữ liệu
 
 ## Khi nào nên dùng Job? Khi nào nên dùng Flow?
 
