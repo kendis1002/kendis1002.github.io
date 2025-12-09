@@ -1,0 +1,229 @@
+---
+title: 'Implement chức năng search trong Android'
+date: '2025-12-09'
+lastmod: '2025-12-09'
+tags: ['android', 'code', 'flow', 'job', 'search']
+draft: false
+summary: 'Implement chức năng search trong Android'
+images: ['/static/images/twitter-card.png']
+---
+
+Search với API là tính năng xuất hiện ở hầu hết các ứng dụng Android hiện đại: tìm kiếm sản phẩm, user, tài liệu, video… Việc triển khai search tưởng đơn giản nhưng nếu làm không khéo, app sẽ     spam API khi user gõ liên tục, giật lag UI, tốn pin và băng thông, dễ crash nếu lifecycle không được xử lý đúng.
+
+--- 
+
+## Vấn đề thường gặp khi Search API
+
+Giả sử user gõ: ```a```, rồi ```ab```, rồi ```abc```.
+
+Nếu bạn gọi API ngay mỗi lần text thay đổi:
+
+- App sẽ gửi 3 request → request đầu về sau request sau → UI hiển thị sai data
+- Lãng phí tài nguyên
+- Khó quản lý cancel
+
+Giải pháp chuẩn:
+
+- debounce
+- cancel request cũ
+- chỉ gửi request mới nhất
+
+## ViewModel: sử dụng Job để debounce + cancel API cũ
+
+Dưới đây là ViewModel xử lý toàn bộ logic search.
+
+```kotlin
+class SearchViewModel(
+    private val repository: SearchRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(SearchUiState())
+    val uiState = _uiState.asStateFlow()
+
+    private var searchJob: Job? = null
+
+    fun onQueryChange(query: String) {
+        _uiState.update { it.copy(query = query) }
+
+        // Cancel job cũ nếu user gõ tiếp
+        searchJob?.cancel()
+
+        searchJob = viewModelScope.launch {
+            delay(350) // debounce 350ms
+
+            if (query.isNotBlank()) {
+                _uiState.update { it.copy(isLoading = true) }
+
+                try {
+                    val result = repository.search(query)
+                    _uiState.update {
+                        it.copy(
+                            results = result,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = e.message ?: "Error"
+                        )
+                    }
+                }
+            } else {
+                _uiState.update { it.copy(results = emptyList()) }
+            }
+        }
+    }
+}
+
+data class SearchUiState(
+    val query: String = "",
+    val results: List<String> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
+)
+```
+
+***Tại sao dùng Job?***
+- ```searchJob?.cancel()``` đảm bảo request cũ bị huỷ ngay.
+- Chỉ request mới nhất được chạy.
+- Không cần Flow phức tạp → code rõ ràng.
+
+## ViewModel: sử dụng Flow + debounce (tùy chọn)
+
+```kotlin
+class SearchViewModel(
+    private val repository: SearchRepository
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(SearchUiState())
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        _uiState
+            .map { it.query }
+            .debounce(350)
+            .distinctUntilChanged()
+            .flatMapLatest { keyword ->
+                flow {
+                    if (keyword.isBlank()) {
+                        emit(SearchState())
+                        return@flow
+                    }
+
+                    emit(_uiState.value.copy(isLoading = true))
+
+                    try {
+                        val data = repository.search(keyword)
+                        emit(
+                            _uiState.value.copy(
+                                isLoading = false,
+                                results = data,
+                                error = null
+                            )
+                        )
+                    } catch (e: Exception) {
+                        emit(
+                            _uiState.value.copy(
+                                isLoading = false,
+                                error = e.message
+                            )
+                        )
+                    }
+                }
+            }
+            .onEach { newState -> _uiState.value = newState }
+            .launchIn(viewModelScope)
+    }
+
+    fun onQueryChange(text: String) {
+        _query.value = text
+    }
+}
+
+data class SearchUiState(
+    val query: String = "",
+    val isLoading: Boolean = false,
+    val results: List<String> = emptyList(),
+    val error: String? = null
+)
+```
+
+## UI với Jetpack Compose: SearchBar + List 
+
+Ví dụ UI đơn giản với TextField và LazyColumn.
+- Nhận input từ TextField
+- Hiển thị loading indicator
+- Hiển thị kết quả search
+
+```kotlin
+@Composable
+fun SearchScreenContainer(viewModel: SearchViewModel = hiltViewModel()) {
+    val state by viewModel.uiState.collectAsState()
+    SearchScreen(state)
+}
+
+@Composable
+fun SearchScreen(state: SearchUiState) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+
+        TextField(
+            value = state.query, // or 
+            onValueChange = viewModel::onQueryChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Search...") }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        if (state.isLoading) {
+            CircularProgressIndicator()
+        }
+
+        if (state.error != null) {
+            Text("Error: ${state.error}", color = Color.Red)
+        }
+
+        LazyColumn {
+            items(state.results) { item ->
+                Text(
+                    text = item,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+            }
+        }
+    }
+}
+```
+
+Repo chỉ:
+
+- Chuyển callback → Flow
+- Không tạo coroutine scope
+- Không collect ở đây
+
+→ repo = provider của dữ liệu
+
+## Khi nào nên dùng Job? Khi nào nên dùng Flow?
+
+Dùng Job nếu bạn chỉ làm:
+- Search đơn giản
+- Một input duy nhất
+- Không cần combine nhiều flows
+
+→ Job dễ debug, dễ maintain hơn.
+
+Dùng Flow nếu bạn cần:
+- Kết hợp nhiều nguồn dữ liệu: query, filter, sort, refresh
+- Có nhiều nguồn dữ liệu cần combine
+- App cần reactive, mở rộng dễ dàng
+
+## Kết luận
+Cả hai cách trên đều hiệu quả để implement chức năng search trong Android. Chọn cách nào phụ thuộc vào độ phức tạp của yêu cầu và kiến trúc ứng dụng của bạn. Quan trọng nhất là đảm bảo trải nghiệm người dùng mượt mà, không lag, không spam API. Chúc bạn thành công!
