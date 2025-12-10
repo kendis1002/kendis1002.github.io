@@ -74,7 +74,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                           {author.facebook && (
                             <Link
                               href={author.facebook}
-                              className="primary-500 hover:text-primary-600 dark:hover:text-primary-400 text-left"
+                              className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 text-left"
                             >
                               @facebook
                             </Link>
