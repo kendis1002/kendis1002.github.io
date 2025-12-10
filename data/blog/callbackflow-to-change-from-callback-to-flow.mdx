@@ -1,0 +1,245 @@
+---
+title: 'Dùng callbackFlow để chuyển callback về flow và ví dụ về location'
+date: '2025-12-09'
+lastmod: '2025-12-09'
+tags: ['android', 'code', 'flow', 'location']
+draft: false
+summary: 'Dùng callbackFlow để chuyển callback về flow và ví dụ về location'
+images: ['/static/images/twitter-card.png']
+---
+
+Trong các ứng dụng như:
+- Delivery
+- Tracking
+- Fitness
+- Map
+- IOT realtime
+việc lắng nghe vị trí (location) theo thời gian thực là yêu cầu bắt buộc.
+
+
+--- 
+
+## Vì Sao Nên Dùng callbackFlow Cho Location
+
+Location API của Android là callback-based
+Trong khi UI hiện đại dùng Kotlin Flow.
+👉 ```callbackFlow``` sinh ra để bọc callback thành Flow chuẩn lifecycle.
+
+✅ Tự động hủy khi không còn collector
+✅ Không cần start()/stop()
+✅ Không leak
+✅ Cold Flow – chỉ chạy khi UI collect
+✅ Chuẩn Clean Architecture
+
+## Data Layer – Location DataSource Với callbackFlow
+
+***Interface***
+```kotlin
+interface LocationDataSource {
+    fun observeLocation(): Flow<Location>
+}
+```
+
+***Implementation***
+```kotlin
+    class LocationDataSourceImpl @Inject constructor(
+        @ApplicationContext private val context: Context
+    ) : LocationDataSource {
+
+        private val client =
+            LocationServices.getFusedLocationProviderClient(context)
+
+        override fun observeLocation(): Flow<Location> = callbackFlow {
+
+            val request = LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                2000L
+            ).build()
+
+            val callback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
+                    result.lastLocation?.let { location ->
+                        trySend(location)
+                    }
+                }
+            }
+
+            client.requestLocationUpdates(
+                request,
+                callback,
+                Looper.getMainLooper()
+            )
+
+            // Auto cancel when no longer collected
+            awaitClose {
+                client.removeLocationUpdates(callback)
+            }
+        }
+    }
+```
+
+## Domain Layer – Location Repository
+
+***Interface***
+```kotlin
+interface LocationRepository {
+    fun observeLocation(): Flow<GeoLocation>
+}
+```
+
+***Implementation***
+```kotlin
+class LocationRepositoryImpl @Inject constructor(
+    private val dataSource: LocationDataSource
+) : LocationRepository {
+
+    // Mapping Location to GeoLocation domain model
+    override fun observeLocation(): Flow<GeoLocation> =
+        dataSource.observeLocation()
+            .map { it.toDomain() }
+}
+```
+
+## Presentation Layer – ViewModel
+
+```kotlin
+@HiltViewModel
+class LocationViewModel @Inject constructor(
+    private val observeLocation: ObserveLocationUseCase
+) : ViewModel() {
+
+    private val _location = MutableStateFlow<GeoLocation?>(null)
+    val location = _location.asStateFlow()
+
+    private var started = false
+
+    fun startLocationUpdates() {
+        if (started) return
+        started = true
+
+        viewModelScope.launch {
+            observeLocation().collect { geo ->
+                _location.value = geo
+            }
+        }
+    }
+}
+```
+
+## Presentation Layer – Composable
+
+Khai báo trong AndroidManifest.xml
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+```
+
+```kotlin
+@Composable
+fun SearchScreenContainer(viewModel: LocationViewModel = hiltViewModel()) {
+    val location by viewModel.location.collectAsState()
+    LocationScreen(location)
+}
+
+@Composable
+fun LocationScreen(
+    location: GeoLocation?
+) {
+    val context = LocalContext.current
+
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val granted =
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+            hasLocationPermission = granted
+
+            if (granted) {
+                viewModel.startLocationUpdates()
+            }
+        }
+
+    LaunchedEffect(Unit) {
+        if (hasLocationPermission) {
+            viewModel.startLocationUpdates()
+        } else {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    if (!hasLocationPermission) {
+        PermissionDeniedUI {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    } else {
+        LocationContent(location)
+    }
+}
+```
+
+```kotlin
+@Composable
+fun PermissionDeniedUI(
+    onRequestPermission: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Ứng dụng cần quyền vị trí để hoạt động.")
+        Spacer(Modifier.height(12.dp))
+        Button(onClick = onRequestPermission) {
+            Text("Cấp quyền")
+        }
+    }
+}
+```
+
+```kotlin
+@Composable
+fun LocationContent(location: GeoLocation?) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (location != null) {
+            Text("Latitude: ${location.latitude}")
+            Text("Longitude: ${location.longitude}")
+        } else {
+            Text("Đang lấy vị trí...")
+        }
+    }
+}
+```
+
+
+## Kết Luận
+Sử dụng ```callbackFlow``` để chuyển callback-based API (như Location API) sang Flow giúp code trở nên sạch sẽ, dễ bảo trì và tuân thủ các nguyên tắc của Clean Architecture. Điều này đặc biệt hữu ích trong các ứng dụng yêu cầu cập nhật vị trí theo thời gian thực. Bên cạnh đó cũng có thể áp dụng tương tự cho các API callback-based khác như Sensor, Bluetooth, Network, v.v.
