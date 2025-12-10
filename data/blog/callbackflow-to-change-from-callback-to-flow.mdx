@@ -23,13 +23,12 @@ việc lắng nghe vị trí (location) theo thời gian thực là yêu cầu b
 
 Location API của Android là callback-based
 Trong khi UI hiện đại dùng Kotlin Flow.
-👉 ```callbackFlow``` sinh ra để bọc callback thành Flow chuẩn lifecycle.
+```callbackFlow``` sinh ra để bọc callback thành Flow chuẩn lifecycle.
 
-✅ Tự động hủy khi không còn collector
-✅ Không cần start()/stop()
-✅ Không leak
-✅ Cold Flow – chỉ chạy khi UI collect
-✅ Chuẩn Clean Architecture
+- Tự động hủy khi không còn collector
+- Không cần start()/stop()
+- Không leak
+- Cold Flow – chỉ chạy khi UI collect
 
 ## Data Layer – Location DataSource Với callbackFlow
 
